@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:gravity="center_horizontal">
+
+    <ImageView
+        android:layout_width="250dp"
+        android:layout_height="250dp"
+        android:src="@mipmap/logo"/>
+
+    <CheckBox
+        android:id="@+id/agree"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="I Agree to Terms and Conditions"/>
+
+    <android.widget.Button
+        android:id="@+id/signup"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/solid_blue_button"
+        android:layout_margin="20dp"
+        android:textColor="@color/white"
+        android:text="Sign Up"
+        android:textStyle="bold"
+        android:textAllCaps="false" />
+
+
+    <TextView
+        android:layout_marginLeft="20dp"
+        android:layout_marginRight="20dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textAllCaps="false"
+        android:textAlignment="center"
+        android:text="By clicking Sign Up, you agree to our T.A.R. Terms and that you have read our Data Policy, including our policy on Cookie Use. You may receive SMS messages, notifications from Tap &amp; Repair and can opt out any time."
+        />
+
+</LinearLayout>

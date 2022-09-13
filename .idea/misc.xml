@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="DesignSurface">
+    <option name="filePathToZoomLevelMap">
+      <map>
+        <entry key="..\:/Users/Jem/AndroidStudioProjects/TapAndRepair/app/src/main/res/drawable/loading_screen_background.xml" value="0.261" />
+        <entry key="..\:/Users/Jem/AndroidStudioProjects/TapAndRepair/app/src/main/res/drawable/solid_blue_button.xml" value="0.261" />
+        <entry key="..\:/Users/Jem/AndroidStudioProjects/TapAndRepair/app/src/main/res/drawable/stroke_blue_button.xml" value="0.261" />
+        <entry key="..\:/Users/Jem/AndroidStudioProjects/TapAndRepair/app/src/main/res/layout/activity_home.xml" value="0.22" />
+        <entry key="..\:/Users/Jem/AndroidStudioProjects/TapAndRepair/app/src/main/res/layout/activity_login.xml" value="0.23247863247863249" />
+        <entry key="..\:/Users/Jem/AndroidStudioProjects/TapAndRepair/app/src/main/res/layout/activity_main.xml" value="0.22" />
+        <entry key="..\:/Users/Jem/AndroidStudioProjects/TapAndRepair/app/src/main/res/layout/activity_navigation.xml" value="0.23247863247863249" />
+        <entry key="..\:/Users/Jem/AndroidStudioProjects/TapAndRepair/app/src/main/res/layout/activity_password_and_security.xml" value="0.23247863247863249" />
+        <entry key="..\:/Users/Jem/AndroidStudioProjects/TapAndRepair/app/src/main/res/layout/activity_sign_up_form.xml" value="0.23247863247863249" />
+        <entry key="..\:/Users/Jem/AndroidStudioProjects/TapAndRepair/app/src/main/res/layout/agree_to_terms.xml" value="0.23162393162393163" />
+        <entry key="..\:/Users/Jem/AndroidStudioProjects/TapAndRepair/app/src/main/res/layout/fragment_account.xml" value="0.23247863247863249" />
+        <entry key="..\:/Users/Jem/AndroidStudioProjects/TapAndRepair/app/src/main/res/layout/fragment_home.xml" value="0.23247863247863249" />
+        <entry key="..\:/Users/Jem/AndroidStudioProjects/TapAndRepair/app/src/main/res/layout/loading_screen.xml" value="0.30085470085470084" />
+        <entry key="..\:/Users/Jem/AndroidStudioProjects/TapAndRepair/app/src/main/res/layout/register_success.xml" value="0.2125" />
+        <entry key="..\:/Users/Jem/AndroidStudioProjects/TapAndRepair/app/src/main/res/layout/sign_up_form.xml" value="0.25" />
+        <entry key="..\:/Users/Jem/AndroidStudioProjects/TapAndRepair/app/src/main/res/menu/nav_menu.xml" value="0.23162393162393163" />
+      </map>
+    </option>
+  </component>
+  <component name="ProjectRootManager" version="2" languageLevel="JDK_11" default="true" project-jdk-name="Android Studio default JDK" project-jdk-type="JavaSDK">
+    <output url="file://$PROJECT_DIR$/build/classes" />
+  </component>
+  <component name="ProjectType">
+    <option name="id" value="Android" />
+  </component>
+</project>
