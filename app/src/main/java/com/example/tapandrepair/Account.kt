@@ -3,11 +3,18 @@ package com.example.tapandrepair
 import android.app.AlertDialog
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
+import android.widget.TextView
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import java.net.SocketTimeoutException
 
 // TODO: Rename parameter arguments, choose names that match
 // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -43,8 +50,39 @@ class Account : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        val logout = view.findViewById<Button>(R.id.logout)
+        val progress = Progress(requireContext())
+        val alerts = Alerts(requireContext())
         val db = TokenDB(requireContext())
+        val name = view.findViewById<TextView>(R.id.name)
+        val contact = view.findViewById<TextView>(R.id.contact)
+
+        val token = db.getToken()
+        progress.showProgress("Loading...")
+
+        CoroutineScope(Dispatchers.IO).launch {
+            val profile = try{ RetrofitInstance.retro.profile("Bearer $token") }
+            catch(e: SocketTimeoutException){
+                withContext(Dispatchers.Main){
+                    progress.dismiss()
+                    alerts.socketTimeOut()
+                }
+                return@launch
+            }catch(e: Exception){
+                withContext(Dispatchers.Main){
+                    progress.dismiss()
+                    alerts.error(e.toString())
+                }
+                return@launch
+            }
+            withContext(Dispatchers.Main){
+                progress.dismiss()
+
+                name.text = "${profile.last_name}, ${profile.first_name}"
+                contact.text = profile.contact_number
+            }
+        }
+
+        val logout = view.findViewById<Button>(R.id.logout)
         logout.setOnClickListener {
             AlertDialog.Builder(requireContext())
                 .setTitle("Log Out")
