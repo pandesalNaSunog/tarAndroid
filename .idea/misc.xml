@@ -4,7 +4,9 @@
     <option name="filePathToZoomLevelMap">
       <map>
         <entry key="..\:/Users/Jem/AndroidStudioProjects/TapAndRepair/app/src/main/res/drawable/ic_baseline_account_circle_24.xml" value="0.301" />
+        <entry key="..\:/Users/Jem/AndroidStudioProjects/TapAndRepair/app/src/main/res/drawable/ic_baseline_check_circle_24.xml" value="0.2515" />
         <entry key="..\:/Users/Jem/AndroidStudioProjects/TapAndRepair/app/src/main/res/drawable/loading_screen_background.xml" value="0.261" />
+        <entry key="..\:/Users/Jem/AndroidStudioProjects/TapAndRepair/app/src/main/res/drawable/selected_buttons.xml" value="0.2505" />
         <entry key="..\:/Users/Jem/AndroidStudioProjects/TapAndRepair/app/src/main/res/drawable/solid_blue_button.xml" value="0.261" />
         <entry key="..\:/Users/Jem/AndroidStudioProjects/TapAndRepair/app/src/main/res/drawable/stroke_blue_button.xml" value="0.261" />
         <entry key="..\:/Users/Jem/AndroidStudioProjects/TapAndRepair/app/src/main/res/layout/activity_home.xml" value="0.22" />
@@ -14,6 +16,7 @@
         <entry key="..\:/Users/Jem/AndroidStudioProjects/TapAndRepair/app/src/main/res/layout/activity_password_and_security.xml" value="0.23247863247863249" />
         <entry key="..\:/Users/Jem/AndroidStudioProjects/TapAndRepair/app/src/main/res/layout/activity_sign_up_form.xml" value="0.23247863247863249" />
         <entry key="..\:/Users/Jem/AndroidStudioProjects/TapAndRepair/app/src/main/res/layout/agree_to_terms.xml" value="0.23162393162393163" />
+        <entry key="..\:/Users/Jem/AndroidStudioProjects/TapAndRepair/app/src/main/res/layout/choose_service.xml" value="0.25" />
         <entry key="..\:/Users/Jem/AndroidStudioProjects/TapAndRepair/app/src/main/res/layout/fragment_account.xml" value="0.23247863247863249" />
         <entry key="..\:/Users/Jem/AndroidStudioProjects/TapAndRepair/app/src/main/res/layout/fragment_home.xml" value="0.23247863247863249" />
         <entry key="..\:/Users/Jem/AndroidStudioProjects/TapAndRepair/app/src/main/res/layout/loading_screen.xml" value="0.30085470085470084" />

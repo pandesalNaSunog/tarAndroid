@@ -1,10 +1,22 @@
 package com.example.tapandrepair
 
+import android.Manifest
+import android.annotation.SuppressLint
+import android.app.AlertDialog
+import android.content.Context
+import android.content.pm.PackageManager
+import android.graphics.Color
+import android.location.LocationManager
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Button
+import androidx.appcompat.content.res.AppCompatResources.getDrawable
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
+import com.google.android.gms.location.LocationServices
 
 // TODO: Rename parameter arguments, choose names that match
 // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -20,7 +32,8 @@ class HomeFragment : Fragment() {
     // TODO: Rename and change types of parameters
     private var param1: String? = null
     private var param2: String? = null
-
+    private var latitude = 0.0
+    private var longitude = 0.0
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         arguments?.let {
@@ -35,6 +48,116 @@ class HomeFragment : Fragment() {
     ): View? {
         // Inflate the layout for this fragment
         return inflater.inflate(R.layout.fragment_home, container, false)
+    }
+
+    @SuppressLint("UseCompatLoadingForDrawables", "ResourceAsColor")
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
+        val findMechanic = view.findViewById<Button>(R.id.findMechanic)
+        val locationManager = requireContext().getSystemService(Context.LOCATION_SERVICE) as LocationManager
+        val gpsStatus = locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)
+        val client = LocationServices.getFusedLocationProviderClient(requireContext())
+
+        findMechanic.setOnClickListener {
+            if(ActivityCompat.checkSelfPermission(requireContext(),Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED){
+                ActivityCompat.requestPermissions(requireActivity(), arrayOf(Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION),1)
+            }else{
+                val task = client.lastLocation
+                task.addOnSuccessListener {
+                    latitude = it.latitude
+                    longitude = it.longitude
+                }
+
+                val servicesAlert = AlertDialog.Builder(requireContext())
+                val servicesAlertView = LayoutInflater.from(requireContext()).inflate(R.layout.choose_service, null)
+                var vehicle = "bike"
+
+
+                val bike = servicesAlertView.findViewById<Button>(R.id.bike)
+                val car = servicesAlertView.findViewById<Button>(R.id.car)
+                val motorbike = servicesAlertView.findViewById<Button>(R.id.motorbike)
+
+                val generalService = servicesAlertView.findViewById<Button>(R.id.generalService)
+                val puncture = servicesAlertView.findViewById<Button>(R.id.puncture)
+                val battery = servicesAlertView.findViewById<Button>(R.id.battery)
+
+
+                generalService.setOnClickListener {
+                    generalService.background = getDrawable(requireContext(), R.drawable.solid_blue_button)
+                    generalService.setTextColor(Color.parseColor("#FFFFFF"))
+
+                    puncture.background = getDrawable(requireContext(), R.drawable.stroke_blue_button)
+                    puncture.setTextColor(Color.parseColor("#00007D"))
+
+                    battery.background = getDrawable(requireContext(), R.drawable.stroke_blue_button)
+                    battery.setTextColor(Color.parseColor("#00007D"))
+                }
+                puncture.setOnClickListener {
+                    puncture.background = getDrawable(requireContext(), R.drawable.solid_blue_button)
+                    puncture.setTextColor(Color.parseColor("#FFFFFF"))
+
+                    generalService.background = getDrawable(requireContext(), R.drawable.stroke_blue_button)
+                    generalService.setTextColor(Color.parseColor("#00007D"))
+
+                    battery.background = getDrawable(requireContext(), R.drawable.stroke_blue_button)
+                    battery.setTextColor(Color.parseColor("#00007D"))
+                }
+                battery.setOnClickListener {
+                    battery.background = getDrawable(requireContext(), R.drawable.solid_blue_button)
+                    battery.setTextColor(Color.parseColor("#FFFFFF"))
+
+                    puncture.background = getDrawable(requireContext(), R.drawable.stroke_blue_button)
+                    puncture.setTextColor(Color.parseColor("#00007D"))
+
+                    generalService.background = getDrawable(requireContext(), R.drawable.stroke_blue_button)
+                    generalService.setTextColor(Color.parseColor("#00007D"))
+                }
+
+
+                bike.setOnClickListener {
+                    bike.background = requireContext().resources.getDrawable(R.drawable.solid_blue_button)
+                    val img = getDrawable(requireContext(), R.drawable.bike_white)
+                    bike.setCompoundDrawablesWithIntrinsicBounds(img, null, null, null)
+
+                    car.background = requireContext().resources.getDrawable(R.drawable.stroke_blue_button)
+                    val imgblack = getDrawable(requireContext(), R.drawable.car_black)
+                    car.setCompoundDrawablesWithIntrinsicBounds(imgblack, null, null, null)
+
+                    motorbike.background = requireContext().resources.getDrawable(R.drawable.stroke_blue_button)
+                    val imgblack2 = getDrawable(requireContext(), R.drawable.motorbike_black)
+                    motorbike.setCompoundDrawablesWithIntrinsicBounds(imgblack2, null, null, null)
+                }
+                car.setOnClickListener {
+                    car.background = requireContext().resources.getDrawable(R.drawable.solid_blue_button)
+                    val img = getDrawable(requireContext(), R.drawable.car_white)
+                    car.setCompoundDrawablesWithIntrinsicBounds(img, null, null, null)
+
+                    bike.background = requireContext().resources.getDrawable(R.drawable.stroke_blue_button)
+                    val imgblack = getDrawable(requireContext(), R.drawable.bike_black)
+                    bike.setCompoundDrawablesWithIntrinsicBounds(imgblack, null, null, null)
+
+                    motorbike.background = requireContext().resources.getDrawable(R.drawable.stroke_blue_button)
+                    val imgblack2 = getDrawable(requireContext(), R.drawable.motorbike_black)
+                    motorbike.setCompoundDrawablesWithIntrinsicBounds(imgblack2, null, null, null)
+                }
+                motorbike.setOnClickListener {
+                    motorbike.background = requireContext().resources.getDrawable(R.drawable.solid_blue_button)
+                    val img = getDrawable(requireContext(), R.drawable.motorbike_white)
+                    motorbike.setCompoundDrawablesWithIntrinsicBounds(img, null, null, null)
+
+                    car.background = requireContext().resources.getDrawable(R.drawable.stroke_blue_button)
+                    val imgblack = getDrawable(requireContext(), R.drawable.car_black)
+                    car.setCompoundDrawablesWithIntrinsicBounds(imgblack, null, null, null)
+
+                    bike.background = requireContext().resources.getDrawable(R.drawable.stroke_blue_button)
+                    val imgblack2 = getDrawable(requireContext(), R.drawable.bike_black)
+                    bike.setCompoundDrawablesWithIntrinsicBounds(imgblack2, null, null, null)
+                }
+                servicesAlert.setView(servicesAlertView)
+                servicesAlert.show()
+            }
+        }
     }
 
     companion object {
