@@ -10,5 +10,6 @@ data class Profile(
     val id: Int,
     val last_name: String,
     val updated_at: String,
-    val user_type: String
+    val user_type: String,
+    val status: String
 )

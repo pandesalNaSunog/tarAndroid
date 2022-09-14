@@ -17,4 +17,13 @@ interface Requests {
 
     @GET("tarapi/public/api/profile")
     suspend fun profile(@Header("Authorization") token: String): Profile
+
+    @GET("tarapi/public/api/mechanics")
+    suspend fun getMechanics(@Header("Authorization") token: String): List<Profile>
+
+    @POST("tarapi/public/api/book")
+    suspend fun book(@Header("Authorization") token: String, @Body request: RequestBody): BookingId
+
+    @POST("tarapi/public/api/check-booking-status")
+    suspend fun checkBookingStatus(@Header("Authorization") token: String, @Body request: RequestBody): BookingStatus
 }

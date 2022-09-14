@@ -16,7 +16,15 @@ import android.widget.Button
 import androidx.appcompat.content.res.AppCompatResources.getDrawable
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.google.android.gms.location.LocationServices
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import retrofit2.HttpException
+import java.net.SocketTimeoutException
 
 // TODO: Rename parameter arguments, choose names that match
 // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -59,6 +67,13 @@ class HomeFragment : Fragment() {
         val gpsStatus = locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)
         val client = LocationServices.getFusedLocationProviderClient(requireContext())
 
+        val progress = Progress(requireContext())
+        val alerts = Alerts(requireContext())
+        val db = TokenDB(requireContext())
+        val token = db.getToken()
+
+
+
         findMechanic.setOnClickListener {
             if(ActivityCompat.checkSelfPermission(requireContext(),Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED){
                 ActivityCompat.requestPermissions(requireActivity(), arrayOf(Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION),1)
@@ -72,6 +87,7 @@ class HomeFragment : Fragment() {
                 val servicesAlert = AlertDialog.Builder(requireContext())
                 val servicesAlertView = LayoutInflater.from(requireContext()).inflate(R.layout.choose_service, null)
                 var vehicle = "bike"
+                var service = "general service"
 
 
                 val bike = servicesAlertView.findViewById<Button>(R.id.bike)
@@ -81,9 +97,60 @@ class HomeFragment : Fragment() {
                 val generalService = servicesAlertView.findViewById<Button>(R.id.generalService)
                 val puncture = servicesAlertView.findViewById<Button>(R.id.puncture)
                 val battery = servicesAlertView.findViewById<Button>(R.id.battery)
+                val search = servicesAlertView.findViewById<Button>(R.id.search)
+
+                search.setOnClickListener {
+
+                    val mechanicsAlert = AlertDialog.Builder(requireContext())
+                    val mechanicsAlertView = LayoutInflater.from(requireContext()).inflate(R.layout.suggested_mechanics, null)
+                    mechanicsAlert.setView(mechanicsAlertView)
+
+                    val mechanicAdapter = MechanicAdapter(mutableListOf(),vehicle,service,latitude,longitude)
+                    val mechanicRecycler = mechanicsAlertView.findViewById<RecyclerView>(R.id.mechanicsRecycler)
+                    mechanicRecycler.adapter = mechanicAdapter
+                    mechanicRecycler.layoutManager = LinearLayoutManager(requireContext())
+
+                    mechanicsAlert.show()
+                    progress.showProgress("We're Currently Searching Mechanics For You")
+
+                    CoroutineScope(Dispatchers.IO).launch {
+                        val mechanics = try{ RetrofitInstance.retro.getMechanics("Bearer $token") }
+                        catch(e: SocketTimeoutException){
+                            withContext(Dispatchers.Main){
+                                progress.dismiss()
+                                alerts.socketTimeOut()
+                            }
+                            return@launch
+                        }catch(e: HttpException){
+                            withContext(Dispatchers.Main){
+                                progress.dismiss()
+                                AlertDialog.Builder(context)
+                                    .setTitle("Error")
+                                    .setMessage("You're Currently Booked to a Mechanic/Shop")
+                                    .setPositiveButton("OK", null)
+                                    .show()
+                            }
+                            return@launch
+                        }catch(e: Exception){
+                            withContext(Dispatchers.Main){
+                                progress.dismiss()
+                                alerts.error(e.toString())
+                            }
+                            return@launch
+                        }
+
+                        withContext(Dispatchers.Main){
+                            progress.dismiss()
+                            for(i in mechanics.indices){
+                                mechanicAdapter.add(mechanics[i])
+                            }
+                        }
+                    }
+                }
 
 
                 generalService.setOnClickListener {
+                    service = "general service"
                     generalService.background = getDrawable(requireContext(), R.drawable.solid_blue_button)
                     generalService.setTextColor(Color.parseColor("#FFFFFF"))
 
@@ -94,6 +161,7 @@ class HomeFragment : Fragment() {
                     battery.setTextColor(Color.parseColor("#00007D"))
                 }
                 puncture.setOnClickListener {
+                    service = "puncture and flat tyre"
                     puncture.background = getDrawable(requireContext(), R.drawable.solid_blue_button)
                     puncture.setTextColor(Color.parseColor("#FFFFFF"))
 
@@ -104,6 +172,7 @@ class HomeFragment : Fragment() {
                     battery.setTextColor(Color.parseColor("#00007D"))
                 }
                 battery.setOnClickListener {
+                    service = "battery shops"
                     battery.background = getDrawable(requireContext(), R.drawable.solid_blue_button)
                     battery.setTextColor(Color.parseColor("#FFFFFF"))
 
@@ -116,6 +185,7 @@ class HomeFragment : Fragment() {
 
 
                 bike.setOnClickListener {
+                    vehicle = "bike"
                     bike.background = requireContext().resources.getDrawable(R.drawable.solid_blue_button)
                     val img = getDrawable(requireContext(), R.drawable.bike_white)
                     bike.setCompoundDrawablesWithIntrinsicBounds(img, null, null, null)
@@ -129,6 +199,7 @@ class HomeFragment : Fragment() {
                     motorbike.setCompoundDrawablesWithIntrinsicBounds(imgblack2, null, null, null)
                 }
                 car.setOnClickListener {
+                    vehicle = "car"
                     car.background = requireContext().resources.getDrawable(R.drawable.solid_blue_button)
                     val img = getDrawable(requireContext(), R.drawable.car_white)
                     car.setCompoundDrawablesWithIntrinsicBounds(img, null, null, null)
@@ -142,6 +213,7 @@ class HomeFragment : Fragment() {
                     motorbike.setCompoundDrawablesWithIntrinsicBounds(imgblack2, null, null, null)
                 }
                 motorbike.setOnClickListener {
+                    vehicle = "motorbike"
                     motorbike.background = requireContext().resources.getDrawable(R.drawable.solid_blue_button)
                     val img = getDrawable(requireContext(), R.drawable.motorbike_white)
                     motorbike.setCompoundDrawablesWithIntrinsicBounds(img, null, null, null)
