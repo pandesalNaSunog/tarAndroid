@@ -1,6 +1,6 @@
 package com.example.tapandrepair
 
-data class Profile(
+data class User(
     val approval_status: String,
     val contact_number: String,
     val created_at: String,
@@ -9,7 +9,7 @@ data class Profile(
     val first_name: String,
     val id: Int,
     val last_name: String,
+    val status: String,
     val updated_at: String,
-    val user_type: String,
-    val status: String
+    val user_type: String
 )

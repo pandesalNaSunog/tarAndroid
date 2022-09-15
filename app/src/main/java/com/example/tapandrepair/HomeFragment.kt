@@ -42,6 +42,7 @@ class HomeFragment : Fragment() {
     private var param2: String? = null
     private var latitude = 0.0
     private var longitude = 0.0
+    private lateinit var showServiceAlert: AlertDialog
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         arguments?.let {
@@ -100,17 +101,8 @@ class HomeFragment : Fragment() {
                 val search = servicesAlertView.findViewById<Button>(R.id.search)
 
                 search.setOnClickListener {
+                    showServiceAlert.dismiss()
 
-                    val mechanicsAlert = AlertDialog.Builder(requireContext())
-                    val mechanicsAlertView = LayoutInflater.from(requireContext()).inflate(R.layout.suggested_mechanics, null)
-                    mechanicsAlert.setView(mechanicsAlertView)
-
-                    val mechanicAdapter = MechanicAdapter(mutableListOf(),vehicle,service,latitude,longitude)
-                    val mechanicRecycler = mechanicsAlertView.findViewById<RecyclerView>(R.id.mechanicsRecycler)
-                    mechanicRecycler.adapter = mechanicAdapter
-                    mechanicRecycler.layoutManager = LinearLayoutManager(requireContext())
-
-                    mechanicsAlert.show()
                     progress.showProgress("We're Currently Searching Mechanics For You")
 
                     CoroutineScope(Dispatchers.IO).launch {
@@ -141,6 +133,16 @@ class HomeFragment : Fragment() {
 
                         withContext(Dispatchers.Main){
                             progress.dismiss()
+                            val mechanicsAlert = AlertDialog.Builder(requireContext())
+                            val mechanicsAlertView = LayoutInflater.from(requireContext()).inflate(R.layout.suggested_mechanics, null)
+                            mechanicsAlert.setView(mechanicsAlertView)
+
+                            val mechanicAdapter = MechanicAdapter(mutableListOf(),vehicle,service,latitude,longitude)
+                            val mechanicRecycler = mechanicsAlertView.findViewById<RecyclerView>(R.id.mechanicsRecycler)
+                            mechanicRecycler.adapter = mechanicAdapter
+                            mechanicRecycler.layoutManager = LinearLayoutManager(requireContext())
+
+                            mechanicsAlert.show()
                             for(i in mechanics.indices){
                                 mechanicAdapter.add(mechanics[i])
                             }
@@ -227,7 +229,7 @@ class HomeFragment : Fragment() {
                     bike.setCompoundDrawablesWithIntrinsicBounds(imgblack2, null, null, null)
                 }
                 servicesAlert.setView(servicesAlertView)
-                servicesAlert.show()
+                showServiceAlert = servicesAlert.show()
             }
         }
     }

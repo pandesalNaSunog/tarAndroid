@@ -10,6 +10,8 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
 import android.widget.TextView
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -55,6 +57,10 @@ class Account : Fragment() {
         val db = TokenDB(requireContext())
         val name = view.findViewById<TextView>(R.id.name)
         val contact = view.findViewById<TextView>(R.id.contact)
+        val bookingRecycler = view.findViewById<RecyclerView>(R.id.bookingRecycler)
+        val bookingAdapter = BookingAdapter(mutableListOf())
+        bookingRecycler.adapter = bookingAdapter
+        bookingRecycler.layoutManager = LinearLayoutManager(requireContext())
 
         val token = db.getToken()
         progress.showProgress("Loading...")
@@ -77,8 +83,12 @@ class Account : Fragment() {
             withContext(Dispatchers.Main){
                 progress.dismiss()
 
-                name.text = "${profile.last_name}, ${profile.first_name}"
-                contact.text = profile.contact_number
+                name.text = "${profile.user.last_name}, ${profile.user.first_name}"
+                contact.text = profile.user.contact_number
+
+                for(i in profile.bookings.indices){
+                    bookingAdapter.add(profile.bookings[i])
+                }
             }
         }
 
