@@ -18,6 +18,7 @@ import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -64,6 +65,7 @@ class HomeFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         val findMechanic = view.findViewById<Button>(R.id.findMechanic)
+        val findShop = view.findViewById<Button>(R.id.findShop)
         val locationManager = requireContext().getSystemService(Context.LOCATION_SERVICE) as LocationManager
         val gpsStatus = locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)
         val client = LocationServices.getFusedLocationProviderClient(requireContext())
@@ -73,48 +75,72 @@ class HomeFragment : Fragment() {
         val db = TokenDB(requireContext())
         val token = db.getToken()
 
-
+        var shopType = ""
 
         findMechanic.setOnClickListener {
-            if(ActivityCompat.checkSelfPermission(requireContext(),Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED){
-                ActivityCompat.requestPermissions(requireActivity(), arrayOf(Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION),1)
-            }else{
-                val task = client.lastLocation
-                task.addOnSuccessListener {
-                    latitude = it.latitude
-                    longitude = it.longitude
-                }
+            shopType = "mechanic"
+            findMechanicFunction(shopType,client, progress, alerts, token)
+        }
 
-                val servicesAlert = AlertDialog.Builder(requireContext())
-                val servicesAlertView = LayoutInflater.from(requireContext()).inflate(R.layout.choose_service, null)
-                var vehicle = "bike"
-                var service = "general service"
+        findShop.setOnClickListener {
+            shopType = "shop"
+            findMechanicFunction(shopType,client, progress, alerts, token)
+        }
+    }
+
+    private fun findMechanicFunction(shopType: String, client: FusedLocationProviderClient, progress: Progress, alerts: Alerts, token: String) {
+        if (ActivityCompat.checkSelfPermission(
+                requireContext(),
+                Manifest.permission.ACCESS_FINE_LOCATION
+            ) != PackageManager.PERMISSION_GRANTED
+        ) {
+            ActivityCompat.requestPermissions(
+                requireActivity(),
+                arrayOf(
+                    Manifest.permission.ACCESS_FINE_LOCATION,
+                    Manifest.permission.ACCESS_COARSE_LOCATION
+                ),
+                1
+            )
+        } else {
+            val task = client.lastLocation
+            task.addOnSuccessListener {
+                latitude = it.latitude
+                longitude = it.longitude
+            }
+
+            val servicesAlert = AlertDialog.Builder(requireContext())
+            val servicesAlertView =
+                LayoutInflater.from(requireContext()).inflate(R.layout.choose_service, null)
+            var vehicle = "bike"
+            var service = "general service"
 
 
-                val bike = servicesAlertView.findViewById<Button>(R.id.bike)
-                val car = servicesAlertView.findViewById<Button>(R.id.car)
-                val motorbike = servicesAlertView.findViewById<Button>(R.id.motorbike)
+            val bike = servicesAlertView.findViewById<Button>(R.id.bike)
+            val car = servicesAlertView.findViewById<Button>(R.id.car)
+            val motorbike = servicesAlertView.findViewById<Button>(R.id.motorbike)
 
-                val generalService = servicesAlertView.findViewById<Button>(R.id.generalService)
-                val puncture = servicesAlertView.findViewById<Button>(R.id.puncture)
-                val battery = servicesAlertView.findViewById<Button>(R.id.battery)
-                val search = servicesAlertView.findViewById<Button>(R.id.search)
+            val generalService = servicesAlertView.findViewById<Button>(R.id.generalService)
+            val puncture = servicesAlertView.findViewById<Button>(R.id.puncture)
+            val battery = servicesAlertView.findViewById<Button>(R.id.battery)
+            val search = servicesAlertView.findViewById<Button>(R.id.search)
 
-                search.setOnClickListener {
-                    showServiceAlert.dismiss()
+            search.setOnClickListener {
+                showServiceAlert.dismiss()
 
-                    progress.showProgress("We're Currently Searching Mechanics For You")
-
+                progress.showProgress("We're Currently Searching Mechanics For You")
+                if (shopType == "mechanic") {
                     CoroutineScope(Dispatchers.IO).launch {
-                        val mechanics = try{ RetrofitInstance.retro.getMechanics("Bearer $token") }
-                        catch(e: SocketTimeoutException){
-                            withContext(Dispatchers.Main){
+                        val mechanics = try {
+                            RetrofitInstance.retro.getMechanics("Bearer $token")
+                        } catch (e: SocketTimeoutException) {
+                            withContext(Dispatchers.Main) {
                                 progress.dismiss()
                                 alerts.socketTimeOut()
                             }
                             return@launch
-                        }catch(e: HttpException){
-                            withContext(Dispatchers.Main){
+                        } catch (e: HttpException) {
+                            withContext(Dispatchers.Main) {
                                 progress.dismiss()
                                 AlertDialog.Builder(context)
                                     .setTitle("Error")
@@ -123,114 +149,192 @@ class HomeFragment : Fragment() {
                                     .show()
                             }
                             return@launch
-                        }catch(e: Exception){
-                            withContext(Dispatchers.Main){
+                        } catch (e: Exception) {
+                            withContext(Dispatchers.Main) {
                                 progress.dismiss()
                                 alerts.error(e.toString())
                             }
                             return@launch
                         }
 
-                        withContext(Dispatchers.Main){
+                        withContext(Dispatchers.Main) {
                             progress.dismiss()
                             val mechanicsAlert = AlertDialog.Builder(requireContext())
-                            val mechanicsAlertView = LayoutInflater.from(requireContext()).inflate(R.layout.suggested_mechanics, null)
+                            val mechanicsAlertView = LayoutInflater.from(requireContext())
+                                .inflate(R.layout.suggested_mechanics, null)
                             mechanicsAlert.setView(mechanicsAlertView)
 
-                            val mechanicAdapter = MechanicAdapter(mutableListOf(),vehicle,service,latitude,longitude)
-                            val mechanicRecycler = mechanicsAlertView.findViewById<RecyclerView>(R.id.mechanicsRecycler)
+                            val mechanicAdapter = MechanicAdapter(
+                                mutableListOf(),
+                                vehicle,
+                                service,
+                                latitude,
+                                longitude
+                            )
+                            val mechanicRecycler =
+                                mechanicsAlertView.findViewById<RecyclerView>(R.id.mechanicsRecycler)
                             mechanicRecycler.adapter = mechanicAdapter
                             mechanicRecycler.layoutManager = LinearLayoutManager(requireContext())
 
                             mechanicsAlert.show()
-                            for(i in mechanics.indices){
+                            for (i in mechanics.indices) {
+                                mechanicAdapter.add(mechanics[i])
+                            }
+                        }
+                    }
+                } else {
+                    CoroutineScope(Dispatchers.IO).launch {
+                        val mechanics = try {
+                            RetrofitInstance.retro.getShops("Bearer $token")
+                        } catch (e: SocketTimeoutException) {
+                            withContext(Dispatchers.Main) {
+                                progress.dismiss()
+                                alerts.socketTimeOut()
+                            }
+                            return@launch
+                        } catch (e: HttpException) {
+                            withContext(Dispatchers.Main) {
+                                progress.dismiss()
+                                AlertDialog.Builder(context)
+                                    .setTitle("Error")
+                                    .setMessage("You're Currently Booked to a Mechanic/Shop")
+                                    .setPositiveButton("OK", null)
+                                    .show()
+                            }
+                            return@launch
+                        } catch (e: Exception) {
+                            withContext(Dispatchers.Main) {
+                                progress.dismiss()
+                                alerts.error(e.toString())
+                            }
+                            return@launch
+                        }
+
+                        withContext(Dispatchers.Main) {
+                            progress.dismiss()
+                            val mechanicsAlert = AlertDialog.Builder(requireContext())
+                            val mechanicsAlertView = LayoutInflater.from(requireContext())
+                                .inflate(R.layout.suggested_mechanics, null)
+                            mechanicsAlert.setView(mechanicsAlertView)
+
+                            val mechanicAdapter = MechanicAdapter(
+                                mutableListOf(),
+                                vehicle,
+                                service,
+                                latitude,
+                                longitude
+                            )
+                            val mechanicRecycler =
+                                mechanicsAlertView.findViewById<RecyclerView>(R.id.mechanicsRecycler)
+                            mechanicRecycler.adapter = mechanicAdapter
+                            mechanicRecycler.layoutManager = LinearLayoutManager(requireContext())
+
+                            mechanicsAlert.show()
+                            for (i in mechanics.indices) {
                                 mechanicAdapter.add(mechanics[i])
                             }
                         }
                     }
                 }
-
-
-                generalService.setOnClickListener {
-                    service = "general service"
-                    generalService.background = getDrawable(requireContext(), R.drawable.solid_blue_button)
-                    generalService.setTextColor(Color.parseColor("#FFFFFF"))
-
-                    puncture.background = getDrawable(requireContext(), R.drawable.stroke_blue_button)
-                    puncture.setTextColor(Color.parseColor("#00007D"))
-
-                    battery.background = getDrawable(requireContext(), R.drawable.stroke_blue_button)
-                    battery.setTextColor(Color.parseColor("#00007D"))
-                }
-                puncture.setOnClickListener {
-                    service = "puncture and flat tyre"
-                    puncture.background = getDrawable(requireContext(), R.drawable.solid_blue_button)
-                    puncture.setTextColor(Color.parseColor("#FFFFFF"))
-
-                    generalService.background = getDrawable(requireContext(), R.drawable.stroke_blue_button)
-                    generalService.setTextColor(Color.parseColor("#00007D"))
-
-                    battery.background = getDrawable(requireContext(), R.drawable.stroke_blue_button)
-                    battery.setTextColor(Color.parseColor("#00007D"))
-                }
-                battery.setOnClickListener {
-                    service = "battery shops"
-                    battery.background = getDrawable(requireContext(), R.drawable.solid_blue_button)
-                    battery.setTextColor(Color.parseColor("#FFFFFF"))
-
-                    puncture.background = getDrawable(requireContext(), R.drawable.stroke_blue_button)
-                    puncture.setTextColor(Color.parseColor("#00007D"))
-
-                    generalService.background = getDrawable(requireContext(), R.drawable.stroke_blue_button)
-                    generalService.setTextColor(Color.parseColor("#00007D"))
-                }
-
-
-                bike.setOnClickListener {
-                    vehicle = "bike"
-                    bike.background = requireContext().resources.getDrawable(R.drawable.solid_blue_button)
-                    val img = getDrawable(requireContext(), R.drawable.bike_white)
-                    bike.setCompoundDrawablesWithIntrinsicBounds(img, null, null, null)
-
-                    car.background = requireContext().resources.getDrawable(R.drawable.stroke_blue_button)
-                    val imgblack = getDrawable(requireContext(), R.drawable.car_black)
-                    car.setCompoundDrawablesWithIntrinsicBounds(imgblack, null, null, null)
-
-                    motorbike.background = requireContext().resources.getDrawable(R.drawable.stroke_blue_button)
-                    val imgblack2 = getDrawable(requireContext(), R.drawable.motorbike_black)
-                    motorbike.setCompoundDrawablesWithIntrinsicBounds(imgblack2, null, null, null)
-                }
-                car.setOnClickListener {
-                    vehicle = "car"
-                    car.background = requireContext().resources.getDrawable(R.drawable.solid_blue_button)
-                    val img = getDrawable(requireContext(), R.drawable.car_white)
-                    car.setCompoundDrawablesWithIntrinsicBounds(img, null, null, null)
-
-                    bike.background = requireContext().resources.getDrawable(R.drawable.stroke_blue_button)
-                    val imgblack = getDrawable(requireContext(), R.drawable.bike_black)
-                    bike.setCompoundDrawablesWithIntrinsicBounds(imgblack, null, null, null)
-
-                    motorbike.background = requireContext().resources.getDrawable(R.drawable.stroke_blue_button)
-                    val imgblack2 = getDrawable(requireContext(), R.drawable.motorbike_black)
-                    motorbike.setCompoundDrawablesWithIntrinsicBounds(imgblack2, null, null, null)
-                }
-                motorbike.setOnClickListener {
-                    vehicle = "motorbike"
-                    motorbike.background = requireContext().resources.getDrawable(R.drawable.solid_blue_button)
-                    val img = getDrawable(requireContext(), R.drawable.motorbike_white)
-                    motorbike.setCompoundDrawablesWithIntrinsicBounds(img, null, null, null)
-
-                    car.background = requireContext().resources.getDrawable(R.drawable.stroke_blue_button)
-                    val imgblack = getDrawable(requireContext(), R.drawable.car_black)
-                    car.setCompoundDrawablesWithIntrinsicBounds(imgblack, null, null, null)
-
-                    bike.background = requireContext().resources.getDrawable(R.drawable.stroke_blue_button)
-                    val imgblack2 = getDrawable(requireContext(), R.drawable.bike_black)
-                    bike.setCompoundDrawablesWithIntrinsicBounds(imgblack2, null, null, null)
-                }
-                servicesAlert.setView(servicesAlertView)
-                showServiceAlert = servicesAlert.show()
             }
+
+
+            generalService.setOnClickListener {
+                service = "general service"
+                generalService.background =
+                    getDrawable(requireContext(), R.drawable.solid_blue_button)
+                generalService.setTextColor(Color.parseColor("#FFFFFF"))
+
+                puncture.background =
+                    getDrawable(requireContext(), R.drawable.stroke_blue_button)
+                puncture.setTextColor(Color.parseColor("#00007D"))
+
+                battery.background =
+                    getDrawable(requireContext(), R.drawable.stroke_blue_button)
+                battery.setTextColor(Color.parseColor("#00007D"))
+            }
+            puncture.setOnClickListener {
+                service = "puncture and flat tyre"
+                puncture.background =
+                    getDrawable(requireContext(), R.drawable.solid_blue_button)
+                puncture.setTextColor(Color.parseColor("#FFFFFF"))
+
+                generalService.background =
+                    getDrawable(requireContext(), R.drawable.stroke_blue_button)
+                generalService.setTextColor(Color.parseColor("#00007D"))
+
+                battery.background =
+                    getDrawable(requireContext(), R.drawable.stroke_blue_button)
+                battery.setTextColor(Color.parseColor("#00007D"))
+            }
+            battery.setOnClickListener {
+                service = "battery shops"
+                battery.background = getDrawable(requireContext(), R.drawable.solid_blue_button)
+                battery.setTextColor(Color.parseColor("#FFFFFF"))
+
+                puncture.background =
+                    getDrawable(requireContext(), R.drawable.stroke_blue_button)
+                puncture.setTextColor(Color.parseColor("#00007D"))
+
+                generalService.background =
+                    getDrawable(requireContext(), R.drawable.stroke_blue_button)
+                generalService.setTextColor(Color.parseColor("#00007D"))
+            }
+
+
+            bike.setOnClickListener {
+                vehicle = "bike"
+                bike.background =
+                    getDrawable(requireContext(),R.drawable.solid_blue_button)
+                val img = getDrawable(requireContext(), R.drawable.bike_white)
+                bike.setCompoundDrawablesWithIntrinsicBounds(img, null, null, null)
+
+                car.background =
+                    getDrawable(requireContext(),R.drawable.stroke_blue_button)
+                val imgblack = getDrawable(requireContext(), R.drawable.car_black)
+                car.setCompoundDrawablesWithIntrinsicBounds(imgblack, null, null, null)
+
+                motorbike.background =
+                    getDrawable(requireContext(),R.drawable.stroke_blue_button)
+                val imgblack2 = getDrawable(requireContext(), R.drawable.motorbike_black)
+                motorbike.setCompoundDrawablesWithIntrinsicBounds(imgblack2, null, null, null)
+            }
+            car.setOnClickListener {
+                vehicle = "car"
+                car.background =
+                    getDrawable(requireContext(),R.drawable.solid_blue_button)
+                val img = getDrawable(requireContext(), R.drawable.car_white)
+                car.setCompoundDrawablesWithIntrinsicBounds(img, null, null, null)
+
+                bike.background =
+                    getDrawable(requireContext(),R.drawable.stroke_blue_button)
+                val imgblack = getDrawable(requireContext(), R.drawable.bike_black)
+                bike.setCompoundDrawablesWithIntrinsicBounds(imgblack, null, null, null)
+
+                motorbike.background =
+                    getDrawable(requireContext(),R.drawable.stroke_blue_button)
+                val imgblack2 = getDrawable(requireContext(), R.drawable.motorbike_black)
+                motorbike.setCompoundDrawablesWithIntrinsicBounds(imgblack2, null, null, null)
+            }
+            motorbike.setOnClickListener {
+                vehicle = "motorbike"
+                motorbike.background =
+                    getDrawable(requireContext(),R.drawable.solid_blue_button)
+                val img = getDrawable(requireContext(), R.drawable.motorbike_white)
+                motorbike.setCompoundDrawablesWithIntrinsicBounds(img, null, null, null)
+
+                car.background =
+                    getDrawable(requireContext(),R.drawable.stroke_blue_button)
+                val imgblack = getDrawable(requireContext(), R.drawable.car_black)
+                car.setCompoundDrawablesWithIntrinsicBounds(imgblack, null, null, null)
+
+                bike.background =
+                    getDrawable(requireContext(),R.drawable.stroke_blue_button)
+                val imgblack2 = getDrawable(requireContext(), R.drawable.bike_black)
+                bike.setCompoundDrawablesWithIntrinsicBounds(imgblack2, null, null, null)
+            }
+            servicesAlert.setView(servicesAlertView)
+            showServiceAlert = servicesAlert.show()
         }
     }
 

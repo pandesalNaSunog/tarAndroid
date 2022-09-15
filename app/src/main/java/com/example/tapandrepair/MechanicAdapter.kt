@@ -165,6 +165,7 @@ class MechanicAdapter(private val list: MutableList<MechanicDetailsItem>, privat
                                             AlertDialog.Builder(context)
                                                 .setTitle("Success")
                                                 .setMessage("Your booking has been accepted by the mechanic/shop")
+                                                .setCancelable(false)
                                                 .setPositiveButton("OK"){_,_->
                                                     val intent = Intent(context, MechanicArrival::class.java)
                                                     startActivity(context, intent, null)

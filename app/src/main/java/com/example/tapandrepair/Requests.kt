@@ -29,4 +29,12 @@ interface Requests {
 
     @POST("tarapi/public/api/cancel-booking")
     suspend fun cancelBooking(@Header("Authorization") token: String, @Body request: RequestBody): Response<ResponseBody>
+
+    @GET("tarapi/public/api/shops")
+    suspend fun getShops(@Header("Authorization") token: String): MechanicDetails
+
+    @GET("tarapi/public/api/has-booking")
+    suspend fun hasBooking(@Header("Authorization") token: String): HasBooking
+
+
 }
