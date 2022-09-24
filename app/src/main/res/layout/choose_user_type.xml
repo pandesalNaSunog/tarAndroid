@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:padding="10dp"
+    android:gravity="center">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="What User Are You?"
+        android:textColor="@color/black"
+        android:textStyle="bold" />
+
+    <android.widget.Button
+        android:id="@+id/customer"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/solid_blue_button"
+        android:layout_margin="10dp"
+        android:textColor="@color/white"
+        android:text="I am a Customer"
+        android:textStyle="bold"
+        android:textAllCaps="false"/>
+    <android.widget.Button
+        android:id="@+id/mechanic"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/solid_blue_button"
+        android:layout_margin="10dp"
+        android:textColor="@color/white"
+        android:text="I am a Mechanic"
+        android:textStyle="bold"
+        android:textAllCaps="false"/>
+    <android.widget.Button
+        android:id="@+id/shopOwner"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/solid_blue_button"
+        android:layout_margin="10dp"
+        android:textColor="@color/white"
+        android:text="I am a Shop Owner"
+        android:textStyle="bold"
+        android:textAllCaps="false"/>
+
+</LinearLayout>

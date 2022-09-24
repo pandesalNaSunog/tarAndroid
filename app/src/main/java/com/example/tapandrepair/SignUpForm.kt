@@ -17,7 +17,7 @@ class SignUpForm : AppCompatActivity() {
         val contact = findViewById<TextInputEditText>(R.id.contact)
         val email = findViewById<TextInputEditText>(R.id.email)
         val next = findViewById<Button>(R.id.next)
-
+        val userType = intent.getStringExtra("user_type")
         next.setOnClickListener {
             if(firstName.text.toString().isEmpty()){
                 firstName.error = "Please fill out this field"
@@ -37,6 +37,7 @@ class SignUpForm : AppCompatActivity() {
                 intent.putExtra("last_name", lastName.text.toString())
                 intent.putExtra("contact", contact.text.toString())
                 intent.putExtra("email", email.text.toString())
+                intent.putExtra("user_type", userType)
                 startActivity(intent)
                 finish()
             }

@@ -3,6 +3,7 @@
   <component name="DesignSurface">
     <option name="filePathToZoomLevelMap">
       <map>
+        <entry key="..\:/Users/Jem/AndroidStudioProjects/TapAndRepair/app/src/main/res/drawable/car_black.xml" value="0.261" />
         <entry key="..\:/Users/Jem/AndroidStudioProjects/TapAndRepair/app/src/main/res/drawable/ic_baseline_account_circle_24.xml" value="0.301" />
         <entry key="..\:/Users/Jem/AndroidStudioProjects/TapAndRepair/app/src/main/res/drawable/ic_baseline_account_circle_24_black.xml" value="0.276" />
         <entry key="..\:/Users/Jem/AndroidStudioProjects/TapAndRepair/app/src/main/res/drawable/ic_baseline_check_circle_24.xml" value="0.2515" />
@@ -12,17 +13,20 @@
         <entry key="..\:/Users/Jem/AndroidStudioProjects/TapAndRepair/app/src/main/res/drawable/solid_blue_button.xml" value="0.261" />
         <entry key="..\:/Users/Jem/AndroidStudioProjects/TapAndRepair/app/src/main/res/drawable/stroke_blue_button.xml" value="0.261" />
         <entry key="..\:/Users/Jem/AndroidStudioProjects/TapAndRepair/app/src/main/res/layout/activity_home.xml" value="0.22" />
-        <entry key="..\:/Users/Jem/AndroidStudioProjects/TapAndRepair/app/src/main/res/layout/activity_login.xml" value="0.23247863247863249" />
+        <entry key="..\:/Users/Jem/AndroidStudioProjects/TapAndRepair/app/src/main/res/layout/activity_login.xml" value="0.2" />
         <entry key="..\:/Users/Jem/AndroidStudioProjects/TapAndRepair/app/src/main/res/layout/activity_main.xml" value="0.22" />
         <entry key="..\:/Users/Jem/AndroidStudioProjects/TapAndRepair/app/src/main/res/layout/activity_navigation.xml" value="0.23247863247863249" />
         <entry key="..\:/Users/Jem/AndroidStudioProjects/TapAndRepair/app/src/main/res/layout/activity_password_and_security.xml" value="0.23247863247863249" />
+        <entry key="..\:/Users/Jem/AndroidStudioProjects/TapAndRepair/app/src/main/res/layout/activity_shop_or_mechanic_home.xml" value="0.23376068376068376" />
         <entry key="..\:/Users/Jem/AndroidStudioProjects/TapAndRepair/app/src/main/res/layout/activity_sign_up_form.xml" value="0.23247863247863249" />
         <entry key="..\:/Users/Jem/AndroidStudioProjects/TapAndRepair/app/src/main/res/layout/agree_to_terms.xml" value="0.23162393162393163" />
         <entry key="..\:/Users/Jem/AndroidStudioProjects/TapAndRepair/app/src/main/res/layout/booking_item.xml" value="0.15341880341880343" />
         <entry key="..\:/Users/Jem/AndroidStudioProjects/TapAndRepair/app/src/main/res/layout/choose_service.xml" value="0.25" />
+        <entry key="..\:/Users/Jem/AndroidStudioProjects/TapAndRepair/app/src/main/res/layout/choose_user_type.xml" value="0.24786324786324787" />
         <entry key="..\:/Users/Jem/AndroidStudioProjects/TapAndRepair/app/src/main/res/layout/fragment_account.xml" value="0.23247863247863249" />
         <entry key="..\:/Users/Jem/AndroidStudioProjects/TapAndRepair/app/src/main/res/layout/fragment_home.xml" value="0.23247863247863249" />
         <entry key="..\:/Users/Jem/AndroidStudioProjects/TapAndRepair/app/src/main/res/layout/loading_screen.xml" value="0.30085470085470084" />
+        <entry key="..\:/Users/Jem/AndroidStudioProjects/TapAndRepair/app/src/main/res/layout/mechanic_booking.xml" value="0.23632478632478632" />
         <entry key="..\:/Users/Jem/AndroidStudioProjects/TapAndRepair/app/src/main/res/layout/mechanic_item.xml" value="0.22179487179487178" />
         <entry key="..\:/Users/Jem/AndroidStudioProjects/TapAndRepair/app/src/main/res/layout/register_success.xml" value="0.2125" />
         <entry key="..\:/Users/Jem/AndroidStudioProjects/TapAndRepair/app/src/main/res/layout/sign_up_form.xml" value="0.25" />

@@ -33,7 +33,7 @@ class PasswordAndSecurity : AppCompatActivity() {
         val password = findViewById<TextInputEditText>(R.id.password)
         val confirmPassword = findViewById<TextInputEditText>(R.id.confirmPassword)
         val next = findViewById<Button>(R.id.next)
-
+        val userType = intent.getStringExtra("user_type")
 
         val progress = Progress(this)
         val alerts = Alerts(this)
@@ -70,6 +70,7 @@ class PasswordAndSecurity : AppCompatActivity() {
                         jsonObject.put("contact_number", contact)
                         jsonObject.put("password", password.text.toString())
                         jsonObject.put("email", email)
+                        jsonObject.put("user_type", userType)
                         val request = jsonObject.toString()
                             .toRequestBody("application/json".toMediaTypeOrNull())
                         CoroutineScope(Dispatchers.IO).launch {

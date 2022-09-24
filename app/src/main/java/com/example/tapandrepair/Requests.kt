@@ -36,5 +36,12 @@ interface Requests {
     @GET("tarapi/public/api/has-booking")
     suspend fun hasBooking(@Header("Authorization") token: String): HasBooking
 
+    @GET("tarapi/public/api/user-type")
+    suspend fun getUserType(@Header("Authorization") token: String): UserType
 
+    @GET("tarapi/public/api/mechanic-booking")
+    suspend fun getMechanicBooking(@Header("Authorization") token: String): MechanicBooking
+
+    @POST("tarapi/public/api/accept-booking")
+    suspend fun acceptBooking(@Header("Authorization") token: String, @Body request: RequestBody): Response<ResponseBody>
 }

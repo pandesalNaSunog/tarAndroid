@@ -49,7 +49,6 @@ class Login : AppCompatActivity() {
                         return@launch
                     }catch(e: HttpException){
                         withContext(Dispatchers.Main) {
-
                             progress.dismiss()
                             withContext(Dispatchers.Main) {
                                 AlertDialog.Builder(this@Login)
