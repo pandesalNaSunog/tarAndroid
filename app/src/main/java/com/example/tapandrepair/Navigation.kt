@@ -91,7 +91,7 @@ class Navigation : AppCompatActivity() {
 
                                     withContext(Dispatchers.Main){
                                         progress.dismiss()
-                                        if(cancelBookingResponse.isSuccessful){
+                                        if(cancelBookingResponse.status == "cancelled by the customer"){
                                             showBookingSuccessAlert.dismiss()
                                         }
                                     }
@@ -126,6 +126,18 @@ class Navigation : AppCompatActivity() {
                                             ContextCompat.startActivity(this@Navigation, intent, null)
                                         }
                                         .show()
+
+                                }else if(statusResponse.status == "denied"){
+                                    hasAccepted = true
+                                    showBookingSuccessAlert.dismiss()
+                                    android.app.AlertDialog.Builder(this@Navigation)
+                                        .setTitle("Message")
+                                        .setMessage("Your booking has been rejected by the mechanic/shop")
+                                        .setCancelable(false)
+                                        .setPositiveButton("OK", null)
+                                        .show()
+                                }else{
+                                    hasAccepted = false
                                 }
                             }
                             delay(5000)

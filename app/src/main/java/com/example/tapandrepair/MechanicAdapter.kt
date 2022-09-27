@@ -136,7 +136,7 @@ class MechanicAdapter(private val list: MutableList<MechanicDetailsItem>, privat
 
                                             withContext(Dispatchers.Main){
                                                 progress.dismiss()
-                                                if(cancelBookingResponse.isSuccessful){
+                                                if(cancelBookingResponse.status == "cancelled by the customer"){
                                                     showBookingSuccessAlert.dismiss()
                                                 }
                                             }

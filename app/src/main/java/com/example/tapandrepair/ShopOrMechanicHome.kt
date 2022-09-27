@@ -34,14 +34,14 @@ class ShopOrMechanicHome : AppCompatActivity() {
     }
 
 
-    private fun getMechanicBookings(){
-        var hasBooking = false
+    private fun getMechanicBookings() {
+        var hasBooking: Boolean
         val db = TokenDB(this)
         val token = db.getToken()
         val alerts = Alerts(this)
         val progress = Progress(this)
         CoroutineScope(Dispatchers.IO).launch {
-            while(!hasBooking) {
+            do {
                 val mechanicBooking = try {
                     RetrofitInstance.retro.getMechanicBooking("Bearer $token")
                 } catch (e: HttpException) {
@@ -55,7 +55,8 @@ class ShopOrMechanicHome : AppCompatActivity() {
                     hasBooking = true
 
                     val bookingAlert = AlertDialog.Builder(this@ShopOrMechanicHome)
-                    val bookingALertView = LayoutInflater.from(this@ShopOrMechanicHome).inflate(R.layout.mechanic_booking, null)
+                    val bookingALertView = LayoutInflater.from(this@ShopOrMechanicHome)
+                        .inflate(R.layout.mechanic_booking, null)
 
                     bookingAlert.setView(bookingALertView)
                     bookingAlert.setCancelable(false)
@@ -67,37 +68,82 @@ class ShopOrMechanicHome : AppCompatActivity() {
                     val accept = bookingALertView.findViewById<Button>(R.id.accept)
                     val deny = bookingALertView.findViewById<Button>(R.id.deny)
 
-
-                    accept.setOnClickListener {
+                    deny.setOnClickListener {
                         progress.showProgress("Please Wait...")
                         val jsonObject = JSONObject()
                         jsonObject.put("booking_id", mechanicBooking.booking_id)
-                        val request = jsonObject.toString().toRequestBody("application/json".toMediaTypeOrNull())
+                        val request = jsonObject.toString()
+                            .toRequestBody("application/json".toMediaTypeOrNull())
                         CoroutineScope(Dispatchers.IO).launch {
-                            val acceptBooking = try{ RetrofitInstance.retro.acceptBooking("Bearer $token", request) }
-                            catch(e: SocketTimeoutException){
-                                withContext(Dispatchers.Main){
+                            val denyBooking = try {
+                                RetrofitInstance.retro.denyBooking("Bearer $token", request)
+                            } catch (e: SocketTimeoutException) {
+                                withContext(Dispatchers.Main) {
                                     progress.dismiss()
                                     alerts.socketTimeOut()
 
                                 }
                                 return@launch
-                            }catch(e: Exception){
-                                withContext(Dispatchers.Main){
+                            } catch (e: Exception) {
+                                withContext(Dispatchers.Main) {
                                     progress.dismiss()
                                     alerts.error(e.toString())
                                 }
                                 return@launch
                             }
 
-                            withContext(Dispatchers.Main){
+                            withContext(Dispatchers.Main) {
                                 progress.dismiss()
-                                if(acceptBooking.isSuccessful){
+                                if (denyBooking.isSuccessful) {
+                                    AlertDialog.Builder(this@ShopOrMechanicHome)
+                                        .setTitle("Message")
+                                        .setMessage("Denied")
+                                        .show()
+                                    hasBooking = false
+                                } else {
+                                    AlertDialog.Builder(this@ShopOrMechanicHome)
+                                        .setTitle("Error")
+                                        .setMessage(denyBooking.errorBody()!!.string())
+                                        .show()
+                                    hasBooking = false
+                                }
+                            }
+                        }
+                    }
+
+
+                    accept.setOnClickListener {
+                        progress.showProgress("Please Wait...")
+                        val jsonObject = JSONObject()
+                        jsonObject.put("booking_id", mechanicBooking.booking_id)
+                        val request = jsonObject.toString()
+                            .toRequestBody("application/json".toMediaTypeOrNull())
+                        CoroutineScope(Dispatchers.IO).launch {
+                            val acceptBooking = try {
+                                RetrofitInstance.retro.acceptBooking("Bearer $token", request)
+                            } catch (e: SocketTimeoutException) {
+                                withContext(Dispatchers.Main) {
+                                    progress.dismiss()
+                                    alerts.socketTimeOut()
+
+                                }
+                                return@launch
+                            } catch (e: Exception) {
+                                withContext(Dispatchers.Main) {
+                                    progress.dismiss()
+                                    alerts.error(e.toString())
+                                }
+                                return@launch
+                            }
+
+                            withContext(Dispatchers.Main) {
+                                progress.dismiss()
+                                if (acceptBooking.isSuccessful) {
                                     AlertDialog.Builder(this@ShopOrMechanicHome)
                                         .setTitle("Success")
                                         .setMessage("Accepted")
                                         .show()
-                                }else{
+                                } else {
                                     AlertDialog.Builder(this@ShopOrMechanicHome)
                                         .setTitle("Error")
                                         .setMessage(acceptBooking.errorBody()!!.string())
@@ -106,12 +152,13 @@ class ShopOrMechanicHome : AppCompatActivity() {
                             }
                         }
                     }
-                    name.text = "${mechanicBooking.customer.first_name} ${mechanicBooking.customer.last_name}"
+                    name.text =
+                        "${mechanicBooking.customer.first_name} ${mechanicBooking.customer.last_name}"
                     service.text = mechanicBooking.service
                     vehicleType.text = mechanicBooking.vehicle_type
                 }
                 delay(5000)
-            }
+            }while(!hasBooking)
         }
     }
 }

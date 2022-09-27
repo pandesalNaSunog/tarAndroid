@@ -50,12 +50,28 @@ class Login : AppCompatActivity() {
                     }catch(e: HttpException){
                         withContext(Dispatchers.Main) {
                             progress.dismiss()
+
                             withContext(Dispatchers.Main) {
-                                AlertDialog.Builder(this@Login)
-                                    .setTitle("Error")
-                                    .setMessage("Account Not Found")
-                                    .setPositiveButton("OK", null)
-                                    .show()
+                                if(e.code() == 404){
+                                    AlertDialog.Builder(this@Login)
+                                        .setTitle("Error")
+                                        .setMessage("Account Not Found")
+                                        .setPositiveButton("OK", null)
+                                        .show()
+                                }else if(e.code() == 400){
+                                    AlertDialog.Builder(this@Login)
+                                        .setTitle("Verification")
+                                        .setMessage("You have failed to verify your account during your registration. Resending verification is still under development.")
+                                        .setPositiveButton("OK", null)
+                                        .show()
+                                }else{
+                                    AlertDialog.Builder(this@Login)
+                                        .setTitle("Error")
+                                        .setMessage("Your Account has not yet approved by the administrator. You may receive an email notification regarding with your account approval.")
+                                        .setPositiveButton("OK", null)
+                                        .show()
+                                }
+
                             }
                         }
                         return@launch
@@ -69,7 +85,12 @@ class Login : AppCompatActivity() {
 
                     withContext(Dispatchers.Main){
                         db.add(loginResponse)
-                        val intent = Intent(this@Login, Navigation::class.java)
+
+                        val intent = if(loginResponse.type == "user"){
+                            Intent(this@Login, Navigation::class.java)
+                        }else{
+                            Intent(this@Login, ShopOrMechanicHome::class.java)
+                        }
                         startActivity(intent)
                         finishAffinity()
                     }

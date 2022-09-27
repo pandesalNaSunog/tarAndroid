@@ -10,7 +10,7 @@ import retrofit2.http.POST
 
 interface Requests {
     @POST("tarapi/public/api/register")
-    suspend fun register(@Body request: RequestBody): Response<ResponseBody>
+    suspend fun register(@Body request: RequestBody): RegistrationResponse
 
     @POST("tarapi/public/api/login")
     suspend fun login(@Body request: RequestBody): Token
@@ -28,7 +28,7 @@ interface Requests {
     suspend fun checkBookingStatus(@Header("Authorization") token: String, @Body request: RequestBody): BookingStatus
 
     @POST("tarapi/public/api/cancel-booking")
-    suspend fun cancelBooking(@Header("Authorization") token: String, @Body request: RequestBody): Response<ResponseBody>
+    suspend fun cancelBooking(@Header("Authorization") token: String, @Body request: RequestBody): BookingStatus
 
     @GET("tarapi/public/api/shops")
     suspend fun getShops(@Header("Authorization") token: String): MechanicDetails
@@ -44,4 +44,10 @@ interface Requests {
 
     @POST("tarapi/public/api/accept-booking")
     suspend fun acceptBooking(@Header("Authorization") token: String, @Body request: RequestBody): Response<ResponseBody>
+
+    @POST("tarapi/public/api/deny-booking")
+    suspend fun denyBooking(@Header("Authorization") token: String, @Body request: RequestBody): Response<ResponseBody>
+
+    @POST("tarapi/public/api/send-otp")
+    suspend fun sendOTP(@Header("Authorization") token: String, @Body request: RequestBody): Response<ResponseBody>
 }

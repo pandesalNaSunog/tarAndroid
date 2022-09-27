@@ -16,16 +16,17 @@ import okhttp3.Dispatcher
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.RequestBody.Companion.toRequestBody
 import org.json.JSONObject
+import retrofit2.HttpException
 import retrofit2.Retrofit
 import java.net.SocketTimeoutException
 
 class PasswordAndSecurity : AppCompatActivity() {
     private lateinit var showAlert: AlertDialog
-    private lateinit var showSuccessAlert: AlertDialog
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_password_and_security)
 
+        val validId = intent.getStringExtra("valid_id")
         val firstName = intent.getStringExtra("first_name")
         val lastName = intent.getStringExtra("last_name")
         val contact = intent.getStringExtra("contact")
@@ -34,7 +35,8 @@ class PasswordAndSecurity : AppCompatActivity() {
         val confirmPassword = findViewById<TextInputEditText>(R.id.confirmPassword)
         val next = findViewById<Button>(R.id.next)
         val userType = intent.getStringExtra("user_type")
-
+        val shopName = intent.getStringExtra("shop_name")
+        val shopAddress = intent.getStringExtra("shop_address")
         val progress = Progress(this)
         val alerts = Alerts(this)
 
@@ -71,6 +73,9 @@ class PasswordAndSecurity : AppCompatActivity() {
                         jsonObject.put("password", password.text.toString())
                         jsonObject.put("email", email)
                         jsonObject.put("user_type", userType)
+                        jsonObject.put("valid_id", validId)
+                        jsonObject.put("shop_name", shopName)
+                        jsonObject.put("shop_address", shopAddress)
                         val request = jsonObject.toString()
                             .toRequestBody("application/json".toMediaTypeOrNull())
                         CoroutineScope(Dispatchers.IO).launch {
@@ -80,6 +85,23 @@ class PasswordAndSecurity : AppCompatActivity() {
                                 withContext(Dispatchers.Main) {
                                     progress.dismiss()
                                     alerts.socketTimeOut()
+                                }
+                                return@launch
+                            }catch (e: HttpException) {
+                                withContext(Dispatchers.Main) {
+                                    if(e.code() == 401){
+                                        AlertDialog.Builder(this@PasswordAndSecurity)
+                                            .setTitle("Error")
+                                            .setMessage("Contact Number or Email already exists.")
+                                            .setPositiveButton("OK", null)
+                                            .show()
+                                    }else{
+                                        AlertDialog.Builder(this@PasswordAndSecurity)
+                                            .setTitle("Error")
+                                            .setMessage("Something Went Wrong.")
+                                            .setPositiveButton("OK", null)
+                                            .show()
+                                    }
                                 }
                                 return@launch
                             } catch (e: Exception) {
@@ -92,24 +114,12 @@ class PasswordAndSecurity : AppCompatActivity() {
 
                             withContext(Dispatchers.Main) {
                                 progress.dismiss()
-                                if (registerResponse.isSuccessful) {
-                                    val successAlert = AlertDialog.Builder(this@PasswordAndSecurity)
-                                    val successALertView =
-                                        LayoutInflater.from(this@PasswordAndSecurity)
-                                            .inflate(R.layout.register_success, null)
 
-                                    val proceedToLogin =
-                                        successALertView.findViewById<Button>(R.id.proceedToLogin)
+                                val intent = Intent(this@PasswordAndSecurity, OneTimePassword::class.java)
+                                intent.putExtra("token", registerResponse.token)
+                                startActivity(intent)
+                                finishAffinity()
 
-                                    proceedToLogin.setOnClickListener {
-                                        val intent =
-                                            Intent(this@PasswordAndSecurity, Login::class.java)
-                                        startActivity(intent)
-                                        finishAffinity()
-                                    }
-                                    successAlert.setView(successALertView)
-                                    showSuccessAlert = successAlert.show()
-                                }
                             }
                         }
                     }

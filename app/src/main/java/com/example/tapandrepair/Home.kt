@@ -21,44 +21,16 @@ class Home : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_home)
 
-        val db = TokenDB(this)
-        val token = db.getToken()
-        var userType = ""
-        val progress = Progress(this)
-        val alerts = Alerts(this)
-        if(db.checkToken()){
-            progress.showProgress("Please Wait...")
-            CoroutineScope(Dispatchers.IO).launch {
-                val userTypeResponse = try{ RetrofitInstance.retro.getUserType("Bearer $token") }
-                catch(e: SocketTimeoutException){
-                    withContext(Dispatchers.Main){
-                        progress.dismiss()
-                        alerts.socketTimeOut()
-                    }
-                    return@launch
-                }catch(e: Exception){
-                    withContext(Dispatchers.Main){
-                        progress.dismiss()
-                        alerts.error(e.toString())
-                    }
-                    return@launch
-                }
 
-                withContext(Dispatchers.Main){
-                    progress.dismiss()
-                    uintent = if(userTypeResponse.user_type == "user"){
-                        Intent(this@Home, Navigation::class.java)
-                    }else{
-                        Intent(this@Home, ShopOrMechanicHome::class.java)
-                    }
-                    startActivity(uintent)
-                    finishAffinity()
-                }
-            }
-        }
+        var userType = ""
+
+
+
 
         val login = findViewById<Button>(R.id.login)
         val signup = findViewById<Button>(R.id.signup)
+
+        authenticate()
         login.setOnClickListener {
             val intent = Intent(this, Login::class.java)
             startActivity(intent)
@@ -90,6 +62,43 @@ class Home : AppCompatActivity() {
                 setUserType(userType)
             }
 
+        }
+    }
+
+    private fun authenticate(){
+        val progress = Progress(this)
+        val db = TokenDB(this)
+        val token = db.getToken()
+        if(db.checkToken()){
+            progress.showProgress("Please Wait...")
+            CoroutineScope(Dispatchers.IO).launch {
+                val userTypeResponse = try{ RetrofitInstance.retro.getUserType("Bearer $token") }
+                catch(e: Exception){
+                    withContext(Dispatchers.Main){
+                        progress.dismiss()
+                        AlertDialog.Builder(this@Home)
+                            .setTitle("Error")
+                            .setCancelable(false)
+                            .setMessage("No Internet Connection")
+                            .setPositiveButton("Try Again"){_,_->
+                                authenticate()
+                            }
+                            .show()
+                    }
+                    return@launch
+                }
+
+                withContext(Dispatchers.Main){
+                    progress.dismiss()
+                    uintent = if(userTypeResponse.user_type == "user"){
+                        Intent(this@Home, Navigation::class.java)
+                    }else{
+                        Intent(this@Home, ShopOrMechanicHome::class.java)
+                    }
+                    startActivity(uintent)
+                    finishAffinity()
+                }
+            }
         }
     }
 
