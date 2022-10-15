@@ -4,6 +4,7 @@ import android.app.AlertDialog
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.widget.Button
 import android.widget.CheckBox
@@ -26,17 +27,21 @@ class PasswordAndSecurity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_password_and_security)
 
+
+        val password = findViewById<TextInputEditText>(R.id.password)
+        val confirmPassword = findViewById<TextInputEditText>(R.id.confirmPassword)
+        val next = findViewById<Button>(R.id.next)
+        val certification = intent.getStringExtra("certification")
         val validId = intent.getStringExtra("valid_id")
         val firstName = intent.getStringExtra("first_name")
         val lastName = intent.getStringExtra("last_name")
         val contact = intent.getStringExtra("contact")
         val email = intent.getStringExtra("email")
-        val password = findViewById<TextInputEditText>(R.id.password)
-        val confirmPassword = findViewById<TextInputEditText>(R.id.confirmPassword)
-        val next = findViewById<Button>(R.id.next)
         val userType = intent.getStringExtra("user_type")
         val shopName = intent.getStringExtra("shop_name")
         val shopAddress = intent.getStringExtra("shop_address")
+        val latitude = intent.getDoubleExtra("lat", 0.0)
+        val longitude = intent.getDoubleExtra("long", 0.0)
         val progress = Progress(this)
         val alerts = Alerts(this)
 
@@ -76,6 +81,9 @@ class PasswordAndSecurity : AppCompatActivity() {
                         jsonObject.put("valid_id", validId)
                         jsonObject.put("shop_name", shopName)
                         jsonObject.put("shop_address", shopAddress)
+                        jsonObject.put("certification", certification)
+                        jsonObject.put("lat", latitude)
+                        jsonObject.put("long", longitude)
                         val request = jsonObject.toString()
                             .toRequestBody("application/json".toMediaTypeOrNull())
                         CoroutineScope(Dispatchers.IO).launch {
@@ -89,6 +97,7 @@ class PasswordAndSecurity : AppCompatActivity() {
                                 return@launch
                             }catch (e: HttpException) {
                                 withContext(Dispatchers.Main) {
+                                    progress.dismiss()
                                     if(e.code() == 401){
                                         AlertDialog.Builder(this@PasswordAndSecurity)
                                             .setTitle("Error")

@@ -126,7 +126,7 @@
 
             <android.widget.Button
                 android:id="@+id/validId"
-                android:text="Submit Valid ID"
+                android:text="Upload Valid ID"
                 android:textColor="@color/darkBlue"
                 android:textAllCaps="false"
                 android:layout_width="match_parent"
@@ -139,7 +139,28 @@
             <ImageView
                 android:id="@+id/image"
                 android:layout_width="match_parent"
-                android:layout_height="300dp"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="20dp"
+                android:layout_marginTop="20dp"
+                android:layout_marginRight="20dp"/>
+            <android.widget.Button
+                android:id="@+id/certification"
+                android:text="Upload Certification"
+                android:textColor="@color/darkBlue"
+                android:textAllCaps="false"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="20dp"
+                android:layout_marginTop="20dp"
+                android:layout_marginRight="20dp"
+                android:background="@drawable/stroke_blue_button" />
+
+
+
+            <ImageView
+                android:id="@+id/certificationImage"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
                 android:layout_marginLeft="20dp"
                 android:layout_marginTop="20dp"
                 android:layout_marginRight="20dp"/>

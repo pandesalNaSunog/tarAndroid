@@ -4,6 +4,7 @@ import android.Manifest
 import android.annotation.SuppressLint
 import android.app.AlertDialog
 import android.content.Context
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Color
 import android.location.LocationManager
@@ -20,6 +21,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
+import com.google.android.material.bottomsheet.BottomSheetDialog
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -67,8 +69,9 @@ class HomeFragment : Fragment() {
         val findMechanic = view.findViewById<Button>(R.id.findMechanic)
         val findShop = view.findViewById<Button>(R.id.findShop)
         val locationManager = requireContext().getSystemService(Context.LOCATION_SERVICE) as LocationManager
-        val gpsStatus = locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)
         val client = LocationServices.getFusedLocationProviderClient(requireContext())
+        val gpsStatus = locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)
+
 
         val progress = Progress(requireContext())
         val alerts = Alerts(requireContext())
@@ -84,7 +87,25 @@ class HomeFragment : Fragment() {
 
         findShop.setOnClickListener {
             shopType = "shop"
-            findMechanicFunction(shopType,client, progress, alerts, token)
+            val bottomSheetDialog = BottomSheetDialog(requireContext())
+            val sheetView = LayoutInflater.from(requireContext()).inflate(R.layout.find_shop_choose_option, null)
+
+            bottomSheetDialog.setContentView(sheetView)
+            bottomSheetDialog.show()
+
+            val shopLocations = sheetView.findViewById<Button>(R.id.shopLocations)
+            val selectShop = sheetView.findViewById<Button>(R.id.selectShop)
+
+            shopLocations.setOnClickListener {
+                val intent = Intent(requireContext(), ShopMap::class.java)
+                startActivity(intent)
+            }
+
+            selectShop.setOnClickListener {
+                findMechanicFunction(shopType,client, progress, alerts, token)
+            }
+
+
         }
     }
 
@@ -128,8 +149,9 @@ class HomeFragment : Fragment() {
             search.setOnClickListener {
                 showServiceAlert.dismiss()
 
-                progress.showProgress("We're Currently Searching Mechanics For You")
+
                 if (shopType == "mechanic") {
+                    progress.showProgress("We're Currently Searching Mechanics For You")
                     CoroutineScope(Dispatchers.IO).launch {
                         val mechanics = try {
                             RetrofitInstance.retro.getMechanics("Bearer $token")
@@ -183,6 +205,7 @@ class HomeFragment : Fragment() {
                         }
                     }
                 } else {
+                    progress.showProgress("We're Currently Searching Repair Shops For You")
                     CoroutineScope(Dispatchers.IO).launch {
                         val mechanics = try {
                             RetrofitInstance.retro.getShops("Bearer $token")

@@ -6,6 +6,7 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.provider.MediaStore
 import android.util.Base64
+import android.util.Log
 import android.util.Patterns
 import android.widget.Button
 import android.widget.ImageView
@@ -15,12 +16,15 @@ import com.google.android.material.textfield.TextInputLayout
 import java.io.ByteArrayOutputStream
 
 class SignUpForm : AppCompatActivity() {
+    private lateinit var certificationImage: ImageView
     private lateinit var validIdImage: ImageView
     private lateinit var image: String
+    private lateinit var certificate: String
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_sign_up_form)
         image = ""
+        certificate = ""
         val firstName = findViewById<TextInputEditText>(R.id.firstName)
         val lastName = findViewById<TextInputEditText>(R.id.lastName)
         val contact = findViewById<TextInputEditText>(R.id.contact)
@@ -31,10 +35,9 @@ class SignUpForm : AppCompatActivity() {
         val shopAddress = findViewById<TextInputEditText>(R.id.shopAddress)
         val shopNameInput = findViewById<TextInputLayout>(R.id.shopNameInput)
         val shopAddressInput = findViewById<TextInputLayout>(R.id.shopAddressInput)
-
-
+        val certification = findViewById<Button>(R.id.certification)
         validIdImage = findViewById(R.id.image)
-
+        certificationImage = findViewById(R.id.certificationImage)
         validId.setOnClickListener {
             val intent = Intent(Intent.ACTION_PICK)
             intent.type = "image/*"
@@ -43,18 +46,27 @@ class SignUpForm : AppCompatActivity() {
         val userType = intent.getStringExtra("user_type")
 
 
-        if(userType == "user" || userType == "mechanic"){
+        certification.setOnClickListener {
+            val intent = Intent(Intent.ACTION_PICK)
+            intent.type = "image/*"
+            startActivityForResult(intent,2)
+        }
+
+        if(userType == "user"){
             shopNameInput.isVisible = false
             shopAddressInput.isVisible = false
-            if(userType == "user"){
-                validId.text = "Submit Driver's License/Valid ID"
-            }else{
-                validId.text = "Submit Driver's License/Valid ID and Mechanic Certification"
-            }
+            validId.text = "Upload Driver's License)"
+            certification.isVisible = false
+        }else if(userType == "mechanic"){
+            shopNameInput.isVisible = false
+            shopAddressInput.isVisible = false
+            validId.text = "Upload Driver's License"
+            certification.text = "Upload Mechanic Certificate"
         }else{
-            shopName.isVisible = true
+            shopNameInput.isVisible = true
             shopAddressInput.isVisible = true
-            validId.text = "Submit Driver's License/Valid ID, Certification and Business Permit"
+            validId.text = "Upload Driver's License"
+            certification.text = "Upload Business Permit"
         }
 
         next.setOnClickListener {
@@ -71,22 +83,34 @@ class SignUpForm : AppCompatActivity() {
             }else if(!Patterns.EMAIL_ADDRESS.matcher(email.text.toString()).matches()){
                 email.error = "Please enter a valid email address."
             }else if(image.isEmpty()){
-                validId.error = "Please submit a valid ID."
+                email.error = "Please submit a valid ID."
             }else if(shopAddress.text.toString().isEmpty() && userType == "owner"){
-                shopAddress.error = "Please enter a valid email address."
+                shopAddress.error = "Please fill out this field"
             }else if(shopName.text.toString().isEmpty() && userType == "owner"){
-                shopName.error = "Please submit a valid ID."
+                shopName.error = "Please fill out this field"
+            }else if(certificate.isEmpty() && userType == "mechanic"){
+                email.error = "Please submit your mechanic certificate"
+            }else if(certificate.isEmpty() && userType == "owner"){
+                email.error = "Please submit your business permit"
             }else{
-                val intent = Intent(this, PasswordAndSecurity::class.java)
-                intent.putExtra("first_name", firstName.text.toString())
-                intent.putExtra("last_name", lastName.text.toString())
-                intent.putExtra("contact", contact.text.toString())
-                intent.putExtra("email", email.text.toString())
-                intent.putExtra("user_type", userType)
-                intent.putExtra("valid_id", image)
-                intent.putExtra("shop_name", shopName.text.toString())
-                intent.putExtra("shop_address", shopAddress.text.toString())
-                startActivity(intent)
+                var thisIntent: Intent = if(userType != "owner"){
+                    Intent(this, PasswordAndSecurity::class.java)
+                }else{
+                    Intent(this, ShopLocation::class.java)
+                }
+
+                thisIntent.putExtra("first_name", firstName.text.toString())
+                thisIntent.putExtra("last_name", lastName.text.toString())
+                thisIntent.putExtra("contact", contact.text.toString())
+                thisIntent.putExtra("email", email.text.toString())
+                thisIntent.putExtra("user_type", userType)
+                thisIntent.putExtra("valid_id", image)
+                thisIntent.putExtra("shop_name", shopName.text.toString())
+                thisIntent.putExtra("shop_address", shopAddress.text.toString())
+                thisIntent.putExtra("certification", certificate)
+                thisIntent.putExtra("lat", 0.0)
+                thisIntent.putExtra("long", 0.0)
+                startActivity(thisIntent)
                 finish()
             }
 
@@ -106,6 +130,16 @@ class SignUpForm : AppCompatActivity() {
             val bytes: ByteArray = stream.toByteArray()
 
             image = Base64.encodeToString(bytes, Base64.DEFAULT)
+        }else if(requestCode == 2 && resultCode == RESULT_OK && data != null){
+            val uri = data.data!!
+            certificationImage.setImageURI(uri)
+            val bitmap =
+                MediaStore.Images.Media.getBitmap(contentResolver, uri)
+            val stream = ByteArrayOutputStream()
+            bitmap.compress(Bitmap.CompressFormat.JPEG, 50, stream)
+            val bytes: ByteArray = stream.toByteArray()
+
+            certificate = Base64.encodeToString(bytes, Base64.DEFAULT)
         }
     }
 }
