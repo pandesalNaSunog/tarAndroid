@@ -1,6 +1,7 @@
 package com.example.tapandrepair
 
 import android.Manifest
+import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
@@ -13,6 +14,7 @@ import com.google.android.gms.location.LocationServices
 
 class ShopLocation : AppCompatActivity() {
 
+    @SuppressLint("MissingPermission")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_shop_location)

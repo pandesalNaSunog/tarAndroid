@@ -50,4 +50,13 @@ interface Requests {
 
     @POST("tarapi/public/api/send-otp")
     suspend fun sendOTP(@Header("Authorization") token: String, @Body request: RequestBody): Response<ResponseBody>
+
+    @POST("tarapi/public/api/mechanic-location")
+    suspend fun mechanicLocation(@Header("Authorization") token: String, @Body request: RequestBody): MechanicLocationResponse
+
+    @POST("tarapi/public/api/conversation")
+    suspend fun conversation(@Header("Authorization") token: String, @Body request: RequestBody):ConversationDetails
+
+    @POST ("tarapi/public/api/send-message")
+    suspend fun sendMessage(@Header("Authorization") token: String, @Body request: RequestBody): Conversation
 }

@@ -122,7 +122,10 @@ class Navigation : AppCompatActivity() {
                                         .setMessage("Your booking has been accepted by the mechanic/shop")
                                         .setCancelable(false)
                                         .setPositiveButton("OK"){_,_->
+                                            Log.e("Shop Mechanic Id", statusResponse.shop_mechanic_id.toString())
                                             val intent = Intent(this@Navigation, MechanicArrival::class.java)
+                                            intent.putExtra("shop_mechanic_id", statusResponse.shop_mechanic_id)
+                                            intent.putExtra("name", statusResponse.shop_mechanic_name)
                                             ContextCompat.startActivity(this@Navigation, intent, null)
                                         }
                                         .show()
