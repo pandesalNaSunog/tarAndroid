@@ -17,6 +17,14 @@ import java.lang.Error
 import java.net.SocketTimeoutException
 
 class ShopOrMechanicHome : AppCompatActivity() {
+    private val db = TokenDB(this)
+    lateinit var token: String
+    val alerts = Alerts(this)
+    lateinit var name: TextView
+    lateinit var acceptance: TextView
+    lateinit var rating: TextView
+    lateinit var cancellation: TextView
+    val progress = Progress(this)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_shop_or_mechanic_home)
@@ -24,6 +32,13 @@ class ShopOrMechanicHome : AppCompatActivity() {
 
         val logout = findViewById<Button>(R.id.logout)
 
+        name = findViewById(R.id.name)
+        acceptance = findViewById(R.id.acceptance)
+        rating = findViewById(R.id.rating)
+        cancellation = findViewById(R.id.cancellation)
+        token = db.getToken()
+
+        getMechanicData()
         getMechanicBookings()
         logout.setOnClickListener {
             db.delete()
@@ -33,13 +48,38 @@ class ShopOrMechanicHome : AppCompatActivity() {
         }
     }
 
+    private fun getMechanicData(){
+        progress.showProgress("Loading...")
+        CoroutineScope(Dispatchers.IO).launch {
+            val mechanicData = try{ RetrofitInstance.retro.mechanicData("Bearer $token") }
+            catch(e: SocketTimeoutException){
+                withContext(Dispatchers.Main){
+                    progress.dismiss()
+                    alerts.socketTimeOut()
+                }
+                return@launch
+            }catch(e: Exception){
+                withContext(Dispatchers.Main){
+                    progress.dismiss()
+                    alerts.error(e.toString())
+                }
+                return@launch
+            }
+
+            withContext(Dispatchers.Main){
+                progress.dismiss()
+                name.text = "${mechanicData.mechanic.first_name} ${mechanicData.mechanic.last_name}"
+                acceptance.text = "${mechanicData.acceptance}%"
+                rating.text = mechanicData.rating.toString()
+                cancellation.text = "${mechanicData.cancellation}%"
+            }
+        }
+    }
+
 
     private fun getMechanicBookings() {
         var hasBooking: Boolean
-        val db = TokenDB(this)
-        val token = db.getToken()
-        val alerts = Alerts(this)
-        val progress = Progress(this)
+
         CoroutineScope(Dispatchers.IO).launch {
             do {
                 val mechanicBooking = try {

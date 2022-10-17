@@ -59,4 +59,7 @@ interface Requests {
 
     @POST ("tarapi/public/api/send-message")
     suspend fun sendMessage(@Header("Authorization") token: String, @Body request: RequestBody): Conversation
+
+    @GET("tarapi/public/api/mechanic-data")
+    suspend fun mechanicData(@Header("Authorization") token: String): MechanicData
 }
