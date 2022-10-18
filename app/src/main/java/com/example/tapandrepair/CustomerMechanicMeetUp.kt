@@ -9,6 +9,7 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.widget.Button
 import android.widget.EditText
+import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.core.app.ActivityCompat
 import androidx.fragment.app.FragmentActivity
@@ -25,58 +26,91 @@ import com.google.android.gms.maps.model.MarkerOptions
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import kotlinx.coroutines.*
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
-import okhttp3.RequestBody
 import okhttp3.RequestBody.Companion.toRequestBody
 import org.json.JSONObject
 import java.net.SocketTimeoutException
 
-class MechanicArrival : FragmentActivity(), OnMapReadyCallback{
+class CustomerMechanicMeetUp : FragmentActivity(), OnMapReadyCallback {
     private lateinit var map: GoogleMap
-    private var mechanicMarker: Marker? = null
+    private var customerId = 0
+    private lateinit var token: String
     private var myLocationMarker: Marker? = null
-    private var shopMechanicId = 0
-    private var shopMechanicName = ""
-    private lateinit var jsonObject: JSONObject
-    private lateinit var request: RequestBody
-    private var zoom = false
-    private var token = ""
+    private var mechanicMarker: Marker? = null
+    var zoom = false
+    private lateinit var time: TextView
+    private lateinit var distance: TextView
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_mechanic_arrival)
-        val mapFragment = supportFragmentManager.findFragmentById(R.id.maps) as SupportMapFragment
-        mapFragment.getMapAsync(this)
-        shopMechanicId = intent.getIntExtra("shop_mechanic_id", 0)
-        shopMechanicName = intent.getStringExtra("name").toString()
+        setContentView(R.layout.activity_customer_mechanic_meet_up)
 
-        val mechanicName = findViewById<TextView>(R.id.mechanicName)
-        val chat = findViewById<Button>(R.id.chat)
+        val mapFragment = supportFragmentManager.findFragmentById(R.id.map) as SupportMapFragment
+        mapFragment.getMapAsync(this)
+
+        val chat = findViewById<LinearLayout>(R.id.chat)
+        val cancel = findViewById<LinearLayout>(R.id.cancel)
         val progress = Progress(this)
         val alerts = Alerts(this)
         val db = TokenDB(this)
+        time = findViewById(R.id.time)
+        distance = findViewById(R.id.distance)
         token = db.getToken()
-
-        chat.setOnClickListener {
+        customerId = intent.getIntExtra("customer_id", 0)
+        Log.e("customer_id", customerId.toString())
+        chat.setOnClickListener{
             val chatBottomSheet = BottomSheetDialog(this)
-            val chatBottomSheetView = LayoutInflater.from(this).inflate(R.layout.conversation_layout, null)
-            chatBottomSheet.setContentView(chatBottomSheetView)
+            val chatView = LayoutInflater.from(this).inflate(R.layout.conversation_layout, null)
+            chatBottomSheet.setContentView(chatView)
             chatBottomSheet.show()
 
-            val name = chatBottomSheetView.findViewById<TextView>(R.id.name)
-            val userType = chatBottomSheetView.findViewById<TextView>(R.id.userType)
-            val messageRecycler = chatBottomSheetView.findViewById<RecyclerView>(R.id.messageRecycler)
-            val writeMessage = chatBottomSheetView.findViewById<EditText>(R.id.writeMessage)
+            val name = chatView.findViewById<TextView>(R.id.name)
+            val userType = chatView.findViewById<TextView>(R.id.userType)
 
+
+            val send = chatView.findViewById<Button>(R.id.send)
+            val writeMessage = chatView.findViewById<EditText>(R.id.writeMessage)
+            val messageRecycler = chatView.findViewById<RecyclerView>(R.id.messageRecycler)
             val messageAdapter = MessageAdapter(mutableListOf())
             messageRecycler.adapter = messageAdapter
             messageRecycler.layoutManager = LinearLayoutManager(this)
-            val send = chatBottomSheetView.findViewById<Button>(R.id.send)
+
+            progress.showProgress("Loading...")
+            val chatJson = JSONObject()
+            chatJson.put("receiver_id", customerId)
+            val chatRequest = chatJson.toString().toRequestBody("application/json".toMediaTypeOrNull())
+            CoroutineScope(Dispatchers.IO).launch {
+                val conversation = try{ RetrofitInstance.retro.conversation("Bearer $token", chatRequest) }
+                catch(e: SocketTimeoutException) {
+                    withContext(Dispatchers.Main) {
+                        progress.dismiss()
+                        alerts.socketTimeOut()
+                    }
+                    return@launch
+                }catch(e: Exception){
+                    withContext(Dispatchers.Main){
+                        progress.dismiss()
+                        alerts.error(e.toString())
+                    }
+                    return@launch
+                }
+
+                withContext(Dispatchers.Main){
+                    progress.dismiss()
+                    name.text = "${conversation.receiver.first_name} ${conversation.receiver.last_name}"
+                    userType.text = conversation.receiver.user_type
+                    for(i in conversation.conversation.indices){
+                        messageAdapter.add(conversation.conversation[i])
+                    }
+                }
+            }
+
+
             send.setOnClickListener {
                 if(writeMessage.text.toString().isEmpty()){
                     writeMessage.error = "Please fill out this field"
                 }else{
                     val sendMessageJson = JSONObject()
                     sendMessageJson.put("message", writeMessage.text.toString())
-                    sendMessageJson.put("receiver_id", shopMechanicId)
+                    sendMessageJson.put("receiver_id", customerId)
                     val sendMessageRequest = sendMessageJson.toString().toRequestBody("application/json".toMediaTypeOrNull())
                     CoroutineScope(Dispatchers.IO).launch {
                         val sendMessageResponse = try{ RetrofitInstance.retro.sendMessage("Bearer $token", sendMessageRequest) }
@@ -98,56 +132,15 @@ class MechanicArrival : FragmentActivity(), OnMapReadyCallback{
                     }
                 }
             }
-
-
-            progress.showProgress("Loading...")
-            val conversationJsonObject = JSONObject()
-            conversationJsonObject.put("receiver_id", shopMechanicId)
-            val conversationRequest = conversationJsonObject.toString().toRequestBody("application/json".toMediaTypeOrNull())
-            CoroutineScope(Dispatchers.IO).launch {
-
-                val conversation = try{ RetrofitInstance.retro.conversation("Bearer $token", conversationRequest) }
-                catch(e: SocketTimeoutException){
-                    withContext(Dispatchers.Main){
-                        progress.dismiss()
-                        alerts.socketTimeOut()
-
-                    }
-                    return@launch
-                }catch(e: Exception){
-                    withContext(Dispatchers.Main){
-                        progress.dismiss()
-                        alerts.error(e.toString())
-                    }
-                    return@launch
-                }
-
-                withContext(Dispatchers.Main){
-                    progress.dismiss()
-                    for(i in conversation.conversation.indices){
-                        messageAdapter.add(conversation.conversation[i])
-                    }
-                    name.text = "${conversation.receiver.first_name} ${conversation.receiver.last_name}"
-                    userType.text = conversation.receiver.user_type
-                }
-
-
-            }
         }
-        mechanicName.text = shopMechanicName
-    }
-
-    override fun onBackPressed() {
-        finishAffinity()
     }
 
     @SuppressLint("MissingPermission")
     override fun onMapReady(googleMap: GoogleMap) {
-        val db = TokenDB(this)
-        val token = db.getToken()
         map = googleMap
         map.mapType = GoogleMap.MAP_TYPE_NORMAL
         map.isTrafficEnabled = true
+
 
 
         if (ActivityCompat.checkSelfPermission(
@@ -166,19 +159,6 @@ class MechanicArrival : FragmentActivity(), OnMapReadyCallback{
         }else{
             implementMap()
         }
-
-    }
-
-    override fun onRequestPermissionsResult(
-        requestCode: Int,
-        permissions: Array<out String>,
-        grantResults: IntArray
-    ) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-
-        if(requestCode == 1 && grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED){
-            implementMap()
-        }
     }
 
     @SuppressLint("MissingPermission")
@@ -190,11 +170,11 @@ class MechanicArrival : FragmentActivity(), OnMapReadyCallback{
             val myLong = it.longitude
             val myLocation = LatLng(myLat, myLong)
 
-            jsonObject = JSONObject()
+            val jsonObject = JSONObject()
             jsonObject.put("lat", myLat)
             jsonObject.put("long", myLong)
-            jsonObject.put("mechanic_id", shopMechanicId)
-            request = jsonObject.toString().toRequestBody("application/json".toMediaTypeOrNull())
+            jsonObject.put("mechanic_id", customerId)
+            val request = jsonObject.toString().toRequestBody("application/json".toMediaTypeOrNull())
 
             CoroutineScope(Dispatchers.IO).launch {
                 while(true){
@@ -214,14 +194,24 @@ class MechanicArrival : FragmentActivity(), OnMapReadyCallback{
                             map.moveCamera(CameraUpdateFactory.newLatLngZoom(mechanicLocation, 10f))
                             zoom = true
                         }
+
+                        distance.text = "${mechanicLocationResponse.travel.distance} km."
+                        time.text = "${mechanicLocationResponse.travel.time} min."
                     }
                     delay(3000)
-
-
-
                 }
-
             }
+        }
+    }
+
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<out String>,
+        grantResults: IntArray
+    ) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        if(requestCode == 1 && grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED){
+            implementMap()
         }
     }
 }

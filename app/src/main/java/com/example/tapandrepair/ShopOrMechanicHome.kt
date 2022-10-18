@@ -39,7 +39,7 @@ class ShopOrMechanicHome : AppCompatActivity() {
         token = db.getToken()
 
         getMechanicData()
-        getMechanicBookings()
+
         logout.setOnClickListener {
             db.delete()
             val intent = Intent(this, Home::class.java)
@@ -47,7 +47,29 @@ class ShopOrMechanicHome : AppCompatActivity() {
             finishAffinity()
         }
     }
+    private fun hasAcceptedBooking(){
+        CoroutineScope(Dispatchers.IO).launch {
+            val hasAcceptedBookingResponse = try{ RetrofitInstance.retro.hasAcceptedBooking("Bearer $token") }
+            catch(e: Exception){
+                withContext(Dispatchers.Main){
+                    hasAcceptedBooking()
+                }
+                return@launch
+            }
 
+            withContext(Dispatchers.Main){
+                if(hasAcceptedBookingResponse.has_booking) {
+                    val intent = Intent(this@ShopOrMechanicHome, CustomerMechanicMeetUp::class.java)
+                    intent.putExtra("customer_id", hasAcceptedBookingResponse.customer_id)
+                    startActivity(intent)
+                    finishAffinity()
+                }else{
+                    getMechanicBookings()
+                }
+
+            }
+        }
+    }
     private fun getMechanicData(){
         progress.showProgress("Loading...")
         CoroutineScope(Dispatchers.IO).launch {
@@ -72,6 +94,7 @@ class ShopOrMechanicHome : AppCompatActivity() {
                 acceptance.text = "${mechanicData.acceptance}%"
                 rating.text = mechanicData.rating.toString()
                 cancellation.text = "${mechanicData.cancellation}%"
+                hasAcceptedBooking()
             }
         }
     }
@@ -178,17 +201,10 @@ class ShopOrMechanicHome : AppCompatActivity() {
 
                             withContext(Dispatchers.Main) {
                                 progress.dismiss()
-                                if (acceptBooking.isSuccessful) {
-                                    AlertDialog.Builder(this@ShopOrMechanicHome)
-                                        .setTitle("Success")
-                                        .setMessage("Accepted")
-                                        .show()
-                                } else {
-                                    AlertDialog.Builder(this@ShopOrMechanicHome)
-                                        .setTitle("Error")
-                                        .setMessage(acceptBooking.errorBody()!!.string())
-                                        .show()
-                                }
+                                val intent = Intent(this@ShopOrMechanicHome, CustomerMechanicMeetUp::class.java)
+                                intent.putExtra("customer_id", acceptBooking.customer_id)
+                                startActivity(intent)
+
                             }
                         }
                     }

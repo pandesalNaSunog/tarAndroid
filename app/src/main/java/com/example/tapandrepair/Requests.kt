@@ -43,7 +43,7 @@ interface Requests {
     suspend fun getMechanicBooking(@Header("Authorization") token: String): MechanicBooking
 
     @POST("tarapi/public/api/accept-booking")
-    suspend fun acceptBooking(@Header("Authorization") token: String, @Body request: RequestBody): Response<ResponseBody>
+    suspend fun acceptBooking(@Header("Authorization") token: String, @Body request: RequestBody): AcceptBookingCustomerId
 
     @POST("tarapi/public/api/deny-booking")
     suspend fun denyBooking(@Header("Authorization") token: String, @Body request: RequestBody): Response<ResponseBody>
@@ -62,4 +62,7 @@ interface Requests {
 
     @GET("tarapi/public/api/mechanic-data")
     suspend fun mechanicData(@Header("Authorization") token: String): MechanicData
+
+    @GET("tarapi/public/api/has-accepted-booking")
+    suspend fun hasAcceptedBooking(@Header("Authorization") token: String): CustomerId
 }

@@ -3,7 +3,10 @@
   <component name="DesignSurface">
     <option name="filePathToZoomLevelMap">
       <map>
+        <entry key="..\:/TapAndRepair/app/src/main/res/layout/activity_customer_mechanic_meet_up.xml" value="0.5" />
+        <entry key="..\:/TapAndRepair/app/src/main/res/layout/activity_mechanic_arrival.xml" value="0.30085470085470084" />
         <entry key="..\:/TapAndRepair/app/src/main/res/layout/activity_shop_or_mechanic_home.xml" value="0.22" />
+        <entry key="..\:/TapAndRepair/app/src/main/res/layout/conversation_layout.xml" value="0.2012820512820513" />
         <entry key="..\:/Users/Jem/AndroidStudioProjects/TapAndRepair/app/src/main/res/drawable/car_black.xml" value="0.261" />
         <entry key="..\:/Users/Jem/AndroidStudioProjects/TapAndRepair/app/src/main/res/drawable/ic_baseline_account_circle_24.xml" value="0.301" />
         <entry key="..\:/Users/Jem/AndroidStudioProjects/TapAndRepair/app/src/main/res/drawable/ic_baseline_account_circle_24_black.xml" value="0.276" />

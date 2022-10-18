@@ -8,10 +8,7 @@ import android.view.LayoutInflater
 import android.widget.Button
 import androidx.activity.contextaware.withContextAvailable
 import androidx.appcompat.app.AlertDialog
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
+import kotlinx.coroutines.*
 import java.net.SocketTimeoutException
 import kotlin.math.sign
 
@@ -76,6 +73,7 @@ class Home : AppCompatActivity() {
                 catch(e: Exception){
                     withContext(Dispatchers.Main){
                         progress.dismiss()
+                        Log.e(e.toString(), e.toString())
                         AlertDialog.Builder(this@Home)
                             .setTitle("Error")
                             .setCancelable(false)
@@ -89,6 +87,7 @@ class Home : AppCompatActivity() {
                 }
 
                 withContext(Dispatchers.Main){
+                    delay(2000)
                     progress.dismiss()
                     uintent = if(userTypeResponse.user_type == "user"){
                         Intent(this@Home, Navigation::class.java)

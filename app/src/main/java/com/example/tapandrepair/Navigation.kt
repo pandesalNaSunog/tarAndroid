@@ -19,6 +19,8 @@ import java.net.SocketTimeoutException
 
 class Navigation : AppCompatActivity() {
     private lateinit var uintent: Intent
+    val db = TokenDB(this)
+    lateinit var globaltoken: String
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_navigation)
@@ -27,15 +29,15 @@ class Navigation : AppCompatActivity() {
         val controller = findNavController(R.id.fragmentContainerView)
         navigation.setupWithNavController(controller)
 
-        val db = TokenDB(this)
-        val token = db.getToken()
-        checkHasBooking(token)
+
+        globaltoken = db.getToken()
+        checkHasBooking()
     }
-    private fun checkHasBooking(token: String){
+    private fun checkHasBooking(){
         val progress = Progress(this)
         val alerts = Alerts(this)
         CoroutineScope(Dispatchers.IO).launch {
-            val hasBooking = try{RetrofitInstance.retro.hasBooking("Bearer $token")}
+            val hasBooking = try{RetrofitInstance.retro.hasBooking("Bearer $globaltoken")}
             catch(e: Exception){
                 withContext(Dispatchers.Main){
                     AlertDialog.Builder(this@Navigation)
@@ -43,7 +45,7 @@ class Navigation : AppCompatActivity() {
                         .setMessage("No Internet Connection. Please Try Again")
                         .setCancelable(false)
                         .setPositiveButton("OK"){_,_->
-                            checkHasBooking(token)
+                            checkHasBooking()
                         }
                         .show()
                 }
@@ -74,7 +76,7 @@ class Navigation : AppCompatActivity() {
 
                                 val cancelBookingRequest = cancelBookingJson.toString().toRequestBody("application/json".toMediaTypeOrNull())
                                 CoroutineScope(Dispatchers.IO).launch {
-                                    val cancelBookingResponse = try{ RetrofitInstance.retro.cancelBooking("Bearer $token", cancelBookingRequest) }
+                                    val cancelBookingResponse = try{ RetrofitInstance.retro.cancelBooking("Bearer $globaltoken", cancelBookingRequest) }
                                     catch(e: SocketTimeoutException){
                                         withContext(Dispatchers.Main){
                                             progress.dismiss()
@@ -106,7 +108,7 @@ class Navigation : AppCompatActivity() {
 
                     CoroutineScope(Dispatchers.IO).launch {
                         while(!hasAccepted){
-                            val statusResponse = try{ RetrofitInstance.retro.checkBookingStatus("Bearer $token", thisRequest) }
+                            val statusResponse = try{ RetrofitInstance.retro.checkBookingStatus("Bearer $globaltoken", thisRequest) }
                             catch(e: Exception){
                                 Log.e("MechanicsAdapter", e.toString())
                                 return@launch
