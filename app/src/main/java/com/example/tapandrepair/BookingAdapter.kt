@@ -9,7 +9,7 @@ import androidx.cardview.widget.CardView
 import androidx.core.content.ContextCompat.startActivity
 import androidx.recyclerview.widget.RecyclerView
 
-class BookingAdapter(private val list: MutableList<Booking>): RecyclerView.Adapter<BookingAdapter.Holder>() {
+class BookingAdapter(private val list: MutableList<CustomerTransactionHistoryItem>): RecyclerView.Adapter<BookingAdapter.Holder>() {
     class Holder(itemView: View): RecyclerView.ViewHolder(itemView)
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): Holder {
@@ -19,23 +19,24 @@ class BookingAdapter(private val list: MutableList<Booking>): RecyclerView.Adapt
     override fun onBindViewHolder(holder: Holder, position: Int) {
         val curr = list[position]
         holder.itemView.apply {
-            val name = findViewById<TextView>(R.id.name)
+            val mechanic = findViewById<TextView>(R.id.mechanic)
+            val service = findViewById<TextView>(R.id.service)
+            val amount = findViewById<TextView>(R.id.amountCharged)
             val status = findViewById<TextView>(R.id.status)
-            val bookingCard = findViewById<CardView>(R.id.bookingCard)
+            val date = findViewById<TextView>(R.id.date)
 
-            bookingCard.setOnClickListener{
-                val intent = Intent(context, MechanicArrival::class.java)
-                startActivity(context, intent, null)
-            }
-            name.text = "Name: ${curr.name}"
-            status.text = "Status: ${curr.status}"
+            mechanic.text = curr.mechanic
+            service.text = curr.service
+            amount.text = curr.amount_charged
+            status.text = curr.status
+            date.text = curr.date
         }
     }
 
     override fun getItemCount(): Int {
         return list.size
     }
-    fun add(item: Booking){
+    fun add(item: CustomerTransactionHistoryItem){
         list.add(item)
         notifyItemInserted(list.size - 1)
     }

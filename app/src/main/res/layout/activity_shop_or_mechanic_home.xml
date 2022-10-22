@@ -130,7 +130,7 @@
                 <ImageView
                     android:layout_width="40dp"
                     android:layout_height="40dp"
-                    android:src="@drawable/ic_baseline_star_24" />
+                    android:src="@drawable/ic_baseline_star_rate_24" />
 
                 <TextView
                     android:id="@+id/rating"

@@ -2,6 +2,7 @@ package com.example.tapandrepair
 
 import android.Manifest
 import android.annotation.SuppressLint
+import android.content.Intent
 import android.content.pm.PackageManager
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
@@ -282,8 +283,55 @@ class CustomerMechanicMeetUp : FragmentActivity(), OnMapReadyCallback {
 
                                                                     withContext(Dispatchers.Main){
                                                                         progress.dismiss()
-                                                                        Log.e("Done Response", doneResponse.toString())
-                                                                        showDoneAlert.dismiss()
+                                                                        val wellDoneAlert = AlertDialog.Builder(this@CustomerMechanicMeetUp)
+                                                                        val wellDoneAlertView = LayoutInflater.from(this@CustomerMechanicMeetUp).inflate(R.layout.done_response, null)
+
+                                                                        wellDoneAlert.setView(wellDoneAlertView)
+                                                                        wellDoneAlert.setCancelable(false)
+                                                                        val showWellDoneAlert = wellDoneAlert.show()
+
+                                                                        val customerName = wellDoneAlertView.findViewById<TextView>(R.id.customerName)
+                                                                        val service = wellDoneAlertView.findViewById<TextView>(R.id.service)
+                                                                        val vehicleType = wellDoneAlertView.findViewById<TextView>(R.id.vehicleType)
+                                                                        val redirect = wellDoneAlertView.findViewById<Button>(R.id.redirect)
+
+                                                                        customerName.text = doneResponse.customer_name
+                                                                        service.text = doneResponse.service
+                                                                        vehicleType.text = doneResponse.vehicle_type
+
+                                                                        redirect.setOnClickListener {
+
+                                                                            progress.showProgress("Please Wait...")
+                                                                            val paidJson = JSONObject()
+                                                                            paidJson.put("transaction_id", doneResponse.transaction_id)
+                                                                            val paidRequest = paidJson.toString().toRequestBody("application/json".toMediaTypeOrNull())
+                                                                            CoroutineScope(Dispatchers.IO).launch {
+                                                                                val paidResponse = try{ RetrofitInstance.retro.markAsPaid("Bearer $token", paidRequest) }
+                                                                                catch(e: SocketTimeoutException){
+                                                                                    withContext(Dispatchers.Main){
+                                                                                        progress.dismiss()
+                                                                                        alerts.socketTimeOut()
+                                                                                    }
+                                                                                    return@launch
+                                                                                }catch(e: Exception){
+                                                                                    withContext(Dispatchers.Main){
+                                                                                        progress.dismiss()
+                                                                                        alerts.error(e.toString())
+                                                                                    }
+                                                                                    return@launch
+                                                                                }
+
+                                                                                withContext(Dispatchers.Main){
+                                                                                    progress.dismiss()
+                                                                                    if(paidResponse.isSuccessful){
+                                                                                        val intent = Intent(this@CustomerMechanicMeetUp, ShopOrMechanicHome::class.java)
+                                                                                        startActivity(intent)
+                                                                                        finishAffinity()
+                                                                                    }
+                                                                                }
+                                                                            }
+
+                                                                        }
                                                                     }
                                                                 }
                                                             }
@@ -298,7 +346,6 @@ class CustomerMechanicMeetUp : FragmentActivity(), OnMapReadyCallback {
                                 }
                                 .show()
                         }
-
                         break
                     }
                     delay(3000)

@@ -55,7 +55,7 @@
                     <ImageView
                         android:layout_width="20dp"
                         android:layout_height="20dp"
-                        android:src="@drawable/ic_baseline_star_24"/>
+                        android:src="@drawable/ic_baseline_star_rate_24"/>
                     <TextView
                         android:id="@+id/rating"
                         android:layout_marginStart="5dp"

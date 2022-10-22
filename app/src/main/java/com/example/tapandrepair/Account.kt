@@ -86,8 +86,8 @@ class Account : Fragment() {
                 name.text = "${profile.user.last_name}, ${profile.user.first_name}"
                 contact.text = profile.user.contact_number
 
-                for(i in profile.bookings.indices){
-                    bookingAdapter.add(profile.bookings[i])
+                for(i in profile.transaction_history.indices){
+                    bookingAdapter.add(profile.transaction_history[i])
                 }
             }
         }

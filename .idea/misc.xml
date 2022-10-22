@@ -3,18 +3,24 @@
   <component name="DesignSurface">
     <option name="filePathToZoomLevelMap">
       <map>
+        <entry key="..\:/TapAndRepair/app/src/main/res/drawable/ic_baseline_star_24.xml" value="0.196" />
+        <entry key="..\:/TapAndRepair/app/src/main/res/drawable/ic_baseline_star_border_24.xml" value="0.196" />
         <entry key="..\:/TapAndRepair/app/src/main/res/layout/activity_customer_mechanic_meet_up.xml" value="0.5" />
         <entry key="..\:/TapAndRepair/app/src/main/res/layout/activity_mechanic_arrival.xml" value="0.30085470085470084" />
         <entry key="..\:/TapAndRepair/app/src/main/res/layout/activity_shop_or_mechanic_home.xml" value="0.22" />
         <entry key="..\:/TapAndRepair/app/src/main/res/layout/agree_to_terms.xml" value="0.30085470085470084" />
         <entry key="..\:/TapAndRepair/app/src/main/res/layout/amount_charged_layout.xml" value="0.33" />
-        <entry key="..\:/TapAndRepair/app/src/main/res/layout/booking_item.xml" value="0.30085470085470084" />
+        <entry key="..\:/TapAndRepair/app/src/main/res/layout/booking_item.xml" value="0.22258064516129034" />
         <entry key="..\:/TapAndRepair/app/src/main/res/layout/choose_service.xml" value="0.30085470085470084" />
         <entry key="..\:/TapAndRepair/app/src/main/res/layout/conversation_layout.xml" value="0.2012820512820513" />
+        <entry key="..\:/TapAndRepair/app/src/main/res/layout/done_response.xml" value="0.23670886075949368" />
         <entry key="..\:/TapAndRepair/app/src/main/res/layout/find_shop_choose_option.xml" value="0.30085470085470084" />
+        <entry key="..\:/TapAndRepair/app/src/main/res/layout/fragment_account.xml" value="0.288034188034188" />
         <entry key="..\:/TapAndRepair/app/src/main/res/layout/fragment_favorites.xml" value="0.30085470085470084" />
         <entry key="..\:/TapAndRepair/app/src/main/res/layout/loading_screen.xml" value="0.30085470085470084" />
         <entry key="..\:/TapAndRepair/app/src/main/res/layout/mechanic_booking.xml" value="0.30085470085470084" />
+        <entry key="..\:/TapAndRepair/app/src/main/res/layout/mechanic_item.xml" value="0.1606837606837607" />
+        <entry key="..\:/TapAndRepair/app/src/main/res/layout/rate.xml" value="0.4068582020389249" />
         <entry key="..\:/TapAndRepair/app/src/main/res/layout/receiver_item.xml" value="0.30085470085470084" />
         <entry key="..\:/TapAndRepair/app/src/main/res/layout/register_success.xml" value="0.30085470085470084" />
         <entry key="..\:/TapAndRepair/app/src/main/res/layout/sender_item.xml" value="0.30085470085470084" />

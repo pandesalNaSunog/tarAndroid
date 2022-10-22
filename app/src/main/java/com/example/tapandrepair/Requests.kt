@@ -77,4 +77,10 @@ interface Requests {
 
     @GET("tarapi/public/api/shop-locations")
     suspend fun shopLocations(@Header("Authorization") token: String): ShopLocationArray
+
+    @POST("tarapi/public/api/rate")
+    suspend fun rate(@Header("Authorization") token: String, @Body request: RequestBody): Response<ResponseBody>
+
+    @POST("tarapi/public/api/mark-as-paid")
+    suspend fun markAsPaid(@Header("Authorization") token: String, @Body request: RequestBody): Response<ResponseBody>
 }

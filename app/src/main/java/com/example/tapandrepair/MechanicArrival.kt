@@ -2,6 +2,7 @@ package com.example.tapandrepair
 
 import android.Manifest
 import android.annotation.SuppressLint
+import android.content.Intent
 import android.content.pm.PackageManager
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
@@ -9,8 +10,11 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.widget.Button
 import android.widget.EditText
+import android.widget.ImageView
 import android.widget.TextView
+import androidx.appcompat.app.AlertDialog
 import androidx.core.app.ActivityCompat
+import androidx.core.view.isVisible
 import androidx.fragment.app.FragmentActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -42,6 +46,7 @@ class MechanicArrival : FragmentActivity(), OnMapReadyCallback{
     private var token = ""
     private lateinit var time: TextView
     private lateinit var distance: TextView
+    private var rating = 1
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_mechanic_arrival)
@@ -187,6 +192,8 @@ class MechanicArrival : FragmentActivity(), OnMapReadyCallback{
 
     @SuppressLint("MissingPermission")
     private fun implementMap(){
+        val progress = Progress(this)
+        val alerts = Alerts(this)
         val client = LocationServices.getFusedLocationProviderClient(this)
         val task = client.lastLocation
         task.addOnSuccessListener {
@@ -223,8 +230,110 @@ class MechanicArrival : FragmentActivity(), OnMapReadyCallback{
                         distance.text = "${mechanicLocationResponse.travel.distance} km."
 
                     }
+
+                    if(mechanicLocationResponse.booking_status == "done"){
+                        withContext(Dispatchers.Main){
+                            AlertDialog.Builder(this@MechanicArrival)
+                                .setTitle("Information")
+                                .setMessage("Your vehicle has been fixed by the mechanic.")
+                                .setPositiveButton("Rate"){_,_->
+                                    val rateDialog = AlertDialog.Builder(this@MechanicArrival)
+                                    val rateDialogView = LayoutInflater.from(this@MechanicArrival).inflate(R.layout.rate, null)
+
+                                    rateDialog.setView(rateDialogView)
+                                    rateDialog.setCancelable(false)
+                                    val showRateDialog = rateDialog.show()
+
+                                    val one = rateDialogView.findViewById<ImageView>(R.id.one)
+                                    val two = rateDialogView.findViewById<ImageView>(R.id.two)
+                                    val three = rateDialogView.findViewById<ImageView>(R.id.three)
+                                    val four = rateDialogView.findViewById<ImageView>(R.id.four)
+                                    val five = rateDialogView.findViewById<ImageView>(R.id.five)
+                                    val confirm = rateDialogView.findViewById<Button>(R.id.confirm)
+
+                                    val ratingsArray = ArrayList<ImageView>()
+                                    ratingsArray.add(one)
+                                    ratingsArray.add(two)
+                                    ratingsArray.add(three)
+                                    ratingsArray.add(four)
+                                    ratingsArray.add(five)
+
+
+                                    renderStars(ratingsArray)
+
+
+                                    one.setOnClickListener{
+                                        rating = 1
+                                        renderStars(ratingsArray)
+                                    }
+                                    two.setOnClickListener{
+                                        rating = 2
+                                        renderStars(ratingsArray)
+                                    }
+                                    three.setOnClickListener{
+                                        rating = 3
+                                        renderStars(ratingsArray)
+                                    }
+                                    four.setOnClickListener{
+                                        rating = 4
+                                        renderStars(ratingsArray)
+                                    }
+                                    five.setOnClickListener{
+                                        rating = 5
+                                        renderStars(ratingsArray)
+                                    }
+
+                                    confirm.setOnClickListener {
+                                        progress.showProgress("Please Wait...")
+                                        val rateJson = JSONObject()
+                                        rateJson.put("mechanic_shop_id", shopMechanicId)
+                                        rateJson.put("rating", rating)
+                                        val rateRequest = rateJson.toString().toRequestBody("application/json".toMediaTypeOrNull())
+                                        CoroutineScope(Dispatchers.IO).launch {
+                                            val rateResponse = try{ RetrofitInstance.retro.rate("Bearer $token", rateRequest) }
+                                            catch(e: SocketTimeoutException){
+                                                withContext(Dispatchers.Main){
+                                                    progress.dismiss()
+                                                    alerts.socketTimeOut()
+                                                }
+                                                return@launch
+                                            }
+                                            catch(e: Exception){
+                                                withContext(Dispatchers.Main){
+                                                    progress.dismiss()
+                                                    alerts.error(e.toString())
+                                                }
+                                                return@launch
+                                            }
+
+                                            withContext(Dispatchers.Main){
+                                                progress.dismiss()
+                                                if(rateResponse.isSuccessful){
+                                                    val intent = Intent(this@MechanicArrival, Navigation::class.java)
+                                                    startActivity(intent)
+                                                    finishAffinity()
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                                .setNegativeButton("OK", null)
+                                .show()
+                        }
+                        break
+                    }
                     delay(3000)
                 }
+            }
+        }
+    }
+
+    private fun renderStars(ratingsArray: ArrayList<ImageView>) {
+        for(i in ratingsArray.indices){
+            if(i + 1 <= rating){
+                ratingsArray[i].setBackgroundResource(R.drawable.ic_baseline_star_24)
+            }else{
+                ratingsArray[i].setBackgroundResource(R.drawable.ic_baseline_star_border_24)
             }
         }
     }
