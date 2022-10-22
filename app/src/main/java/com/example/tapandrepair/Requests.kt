@@ -65,4 +65,16 @@ interface Requests {
 
     @GET("tarapi/public/api/has-accepted-booking")
     suspend fun hasAcceptedBooking(@Header("Authorization") token: String): CustomerId
+
+    @POST("tarapi/public/api/fix")
+    suspend fun fix(@Header("Authorization") token: String, @Body request: RequestBody): Response<ResponseBody>
+
+    @POST("tarapi/public/api/done")
+    suspend fun done(@Header("Authorization") token: String, @Body request: RequestBody): DoneResponse
+
+    @POST("tarapi/public/api/submit-violation")
+    suspend fun submitViolation(@Header("Authorization") token: String, @Body request: RequestBody): Response<ResponseBody>
+
+    @GET("tarapi/public/api/shop-locations")
+    suspend fun shopLocations(@Header("Authorization") token: String): ShopLocationArray
 }

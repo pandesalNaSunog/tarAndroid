@@ -61,6 +61,7 @@ class ShopOrMechanicHome : AppCompatActivity() {
                 if(hasAcceptedBookingResponse.has_booking) {
                     val intent = Intent(this@ShopOrMechanicHome, CustomerMechanicMeetUp::class.java)
                     intent.putExtra("customer_id", hasAcceptedBookingResponse.customer_id)
+                    intent.putExtra("booking_id", hasAcceptedBookingResponse.booking_id)
                     startActivity(intent)
                     finishAffinity()
                 }else{
@@ -203,6 +204,7 @@ class ShopOrMechanicHome : AppCompatActivity() {
                                 progress.dismiss()
                                 val intent = Intent(this@ShopOrMechanicHome, CustomerMechanicMeetUp::class.java)
                                 intent.putExtra("customer_id", acceptBooking.customer_id)
+                                intent.putExtra("booking_id", mechanicBooking.booking_id)
                                 startActivity(intent)
 
                             }

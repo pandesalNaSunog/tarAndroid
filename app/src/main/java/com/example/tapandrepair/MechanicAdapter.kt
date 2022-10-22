@@ -169,6 +169,8 @@ class MechanicAdapter(private val list: MutableList<MechanicDetailsItem>, privat
                                                 .setCancelable(false)
                                                 .setPositiveButton("OK"){_,_->
                                                     val intent = Intent(context, MechanicArrival::class.java)
+                                                    intent.putExtra("shop_mechanic_id", statusResponse.shop_mechanic_id)
+                                                    intent.putExtra("name", statusResponse.shop_mechanic_name)
                                                     startActivity(context, intent, null)
                                                 }
                                                 .show()

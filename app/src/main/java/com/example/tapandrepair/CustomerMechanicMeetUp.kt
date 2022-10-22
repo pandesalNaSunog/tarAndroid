@@ -11,6 +11,7 @@ import android.widget.Button
 import android.widget.EditText
 import android.widget.LinearLayout
 import android.widget.TextView
+import androidx.appcompat.app.AlertDialog
 import androidx.core.app.ActivityCompat
 import androidx.fragment.app.FragmentActivity
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -24,6 +25,7 @@ import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.Marker
 import com.google.android.gms.maps.model.MarkerOptions
 import com.google.android.material.bottomsheet.BottomSheetDialog
+import com.google.android.material.textfield.TextInputEditText
 import kotlinx.coroutines.*
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.RequestBody.Companion.toRequestBody
@@ -39,6 +41,8 @@ class CustomerMechanicMeetUp : FragmentActivity(), OnMapReadyCallback {
     var zoom = false
     private lateinit var time: TextView
     private lateinit var distance: TextView
+    private var bookingId = 0
+    private lateinit var arrivedAlert: AlertDialog
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_customer_mechanic_meet_up)
@@ -55,6 +59,7 @@ class CustomerMechanicMeetUp : FragmentActivity(), OnMapReadyCallback {
         distance = findViewById(R.id.distance)
         token = db.getToken()
         customerId = intent.getIntExtra("customer_id", 0)
+        bookingId = intent.getIntExtra("booking_id",0)
         Log.e("customer_id", customerId.toString())
         chat.setOnClickListener{
             val chatBottomSheet = BottomSheetDialog(this)
@@ -197,6 +202,104 @@ class CustomerMechanicMeetUp : FragmentActivity(), OnMapReadyCallback {
 
                         distance.text = "${mechanicLocationResponse.travel.distance} km."
                         time.text = "${mechanicLocationResponse.travel.time} min."
+
+                        Log.e("Travel Distance", mechanicLocationResponse.travel.distance.toString())
+                    }
+                    if(mechanicLocationResponse.travel.distance < 1.0){
+
+                        withContext(Dispatchers.Main){
+                            arrivedAlert = AlertDialog.Builder(this@CustomerMechanicMeetUp)
+                                .setTitle("Arrived")
+                                .setMessage("Your have arrived to your customer's location")
+                                .setCancelable(false)
+                                .setPositiveButton("Start Fixing"){_,_->
+                                    val progress = Progress(this@CustomerMechanicMeetUp)
+                                    val alerts = Alerts(this@CustomerMechanicMeetUp)
+
+                                    progress.showProgress("Please Wait...")
+                                    val fixRequestJson = JSONObject()
+                                    fixRequestJson.put("booking_id", bookingId)
+                                    val fixRequest = fixRequestJson.toString().toRequestBody("application/json".toMediaTypeOrNull())
+                                    CoroutineScope(Dispatchers.IO).launch {
+                                        val fixResponse = try{ RetrofitInstance.retro.fix("Bearer $token", fixRequest) }
+                                        catch(e: SocketTimeoutException){
+                                            withContext(Dispatchers.Main){
+                                                progress.dismiss()
+                                                alerts.socketTimeOut()
+                                            }
+                                            return@launch
+                                        }catch(e: Exception){
+                                            withContext(Dispatchers.Main){
+                                                progress.dismiss()
+                                                alerts.error(e.toString())
+                                            }
+                                            return@launch
+                                        }
+
+                                        withContext(Dispatchers.Main){
+                                            progress.dismiss()
+                                            if(fixResponse.isSuccessful){
+                                                arrivedAlert.dismiss()
+                                                AlertDialog.Builder(this@CustomerMechanicMeetUp)
+                                                    .setTitle("Ongoing")
+                                                    .setMessage("Currently servicing customer's vehicle")
+                                                    .setCancelable(false)
+                                                    .setPositiveButton("Done"){_,_->
+                                                        val doneAlert = AlertDialog.Builder(this@CustomerMechanicMeetUp)
+                                                        val doneAlertView = LayoutInflater.from(this@CustomerMechanicMeetUp).inflate(R.layout.amount_charged_layout, null)
+
+                                                        doneAlert.setView(doneAlertView)
+                                                        val showDoneAlert = doneAlert.show()
+
+                                                        val amount = doneAlertView.findViewById<TextInputEditText>(R.id.amountCharged)
+                                                        val confirm = doneAlertView.findViewById<Button>(R.id.confirm)
+
+                                                        confirm.setOnClickListener {
+                                                            if(amount.text.toString().isEmpty()){
+                                                                amount.error = "Please fill out this field"
+                                                            }else{
+                                                                progress.showProgress("Please Wait...")
+                                                                val doneJson = JSONObject()
+                                                                doneJson.put("booking_id", bookingId)
+                                                                doneJson.put("amount", amount.text.toString())
+                                                                val doneRequest = doneJson.toString().toRequestBody("application/json".toMediaTypeOrNull())
+                                                                CoroutineScope(Dispatchers.IO).launch {
+                                                                    val doneResponse = try{ RetrofitInstance.retro.done("Bearer $token", doneRequest) }
+                                                                    catch(e: SocketTimeoutException){
+                                                                        withContext(Dispatchers.Main){
+                                                                            progress.dismiss()
+                                                                            alerts.socketTimeOut()
+                                                                        }
+                                                                        return@launch
+                                                                    }
+                                                                    catch(e: Exception){
+                                                                        withContext(Dispatchers.Main){
+                                                                            progress.dismiss()
+                                                                            alerts.error(e.toString())
+                                                                        }
+                                                                        return@launch
+                                                                    }
+
+                                                                    withContext(Dispatchers.Main){
+                                                                        progress.dismiss()
+                                                                        Log.e("Done Response", doneResponse.toString())
+                                                                        showDoneAlert.dismiss()
+                                                                    }
+                                                                }
+                                                            }
+                                                        }
+                                                    }
+                                                    .show()
+                                            }else{
+                                                Log.e("Fix Response", fixResponse.errorBody().toString())
+                                            }
+                                        }
+                                    }
+                                }
+                                .show()
+                        }
+
+                        break
                     }
                     delay(3000)
                 }

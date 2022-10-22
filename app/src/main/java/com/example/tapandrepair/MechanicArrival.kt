@@ -40,6 +40,8 @@ class MechanicArrival : FragmentActivity(), OnMapReadyCallback{
     private lateinit var request: RequestBody
     private var zoom = false
     private var token = ""
+    private lateinit var time: TextView
+    private lateinit var distance: TextView
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_mechanic_arrival)
@@ -53,6 +55,8 @@ class MechanicArrival : FragmentActivity(), OnMapReadyCallback{
         val progress = Progress(this)
         val alerts = Alerts(this)
         val db = TokenDB(this)
+        time = findViewById<TextView>(R.id.time)
+        distance = findViewById<TextView>(R.id.distance)
         token = db.getToken()
 
         chat.setOnClickListener {
@@ -214,13 +218,13 @@ class MechanicArrival : FragmentActivity(), OnMapReadyCallback{
                             map.moveCamera(CameraUpdateFactory.newLatLngZoom(mechanicLocation, 10f))
                             zoom = true
                         }
+
+                        time.text = "${mechanicLocationResponse.travel.time} min."
+                        distance.text = "${mechanicLocationResponse.travel.distance} km."
+
                     }
                     delay(3000)
-
-
-
                 }
-
             }
         }
     }
