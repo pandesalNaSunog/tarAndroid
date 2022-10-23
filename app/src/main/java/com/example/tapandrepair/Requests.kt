@@ -83,4 +83,13 @@ interface Requests {
 
     @POST("tarapi/public/api/mark-as-paid")
     suspend fun markAsPaid(@Header("Authorization") token: String, @Body request: RequestBody): Response<ResponseBody>
+
+    @POST("tarapi/public/api/update-name")
+    suspend fun updateName(@Header("Authorization") token: String, @Body request: RequestBody): Response<ResponseBody>
+
+    @POST("tarapi/public/api/update-password")
+    suspend fun updatePassword(@Header("Authorization") token: String, @Body request: RequestBody): Response<ResponseBody>
+
+    @POST("tarapi/public/api/password-first")
+    suspend fun passwordFirst(@Header("Authorization") token: String, @Body request: RequestBody): Response<ResponseBody>
 }

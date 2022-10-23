@@ -12,10 +12,15 @@ import android.widget.Button
 import android.widget.TextView
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.google.android.material.bottomsheet.BottomSheetDialog
+import com.google.android.material.textfield.TextInputEditText
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import okhttp3.MediaType.Companion.toMediaTypeOrNull
+import okhttp3.RequestBody.Companion.toRequestBody
+import org.json.JSONObject
 import java.net.SocketTimeoutException
 
 // TODO: Rename parameter arguments, choose names that match
@@ -52,6 +57,8 @@ class Account : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+
+        val editProfile = view.findViewById<Button>(R.id.editProfile)
         val progress = Progress(requireContext())
         val alerts = Alerts(requireContext())
         val db = TokenDB(requireContext())
@@ -64,6 +71,72 @@ class Account : Fragment() {
 
         val token = db.getToken()
         progress.showProgress("Loading...")
+
+
+        editProfile.setOnClickListener {
+            val editProfileDialog = BottomSheetDialog(requireContext())
+            val editProfileDialogView = LayoutInflater.from(requireContext()).inflate(R.layout.update_profile_layout, null)
+
+            editProfileDialog.setContentView(editProfileDialogView)
+
+            editProfileDialog.show()
+
+            val editProfileName = editProfileDialogView.findViewById<TextView>(R.id.name)
+            val updateName = editProfileDialogView.findViewById<Button>(R.id.updateName)
+            val updatePassword = editProfileDialogView.findViewById<Button>(R.id.updatePassword)
+
+            editProfileName.text = name.text.toString()
+
+            updateName.setOnClickListener {
+                val updateNameDialog = AlertDialog.Builder(requireContext())
+                val updateNameDialogView = LayoutInflater.from(requireContext()).inflate(R.layout.update_name_form, null)
+
+                updateNameDialog.setView(updateNameDialogView)
+
+                val showUpdateNameDialog = updateNameDialog.show()
+
+                val firstName = updateNameDialogView.findViewById<TextInputEditText>(R.id.firstName)
+                val lastName = updateNameDialogView.findViewById<TextInputEditText>(R.id.lastName)
+                val confirm = updateNameDialogView.findViewById<Button>(R.id.confirm)
+
+                confirm.setOnClickListener {
+                    if(firstName.text.toString().isEmpty()){
+                        firstName.error = "Please fill out this field"
+                    }else if(lastName.text.toString().isEmpty()){
+                        lastName.error = "Please fill out this field"
+                    }else{
+                        progress.showProgress("Please Wait..")
+                        val updateNameJson = JSONObject()
+                        updateNameJson.put("first_name", firstName.text.toString())
+                        updateNameJson.put("last_name", lastName.text.toString())
+                        val updateNameRequest = updateNameJson.toString().toRequestBody("application/json".toMediaTypeOrNull())
+                        CoroutineScope(Dispatchers.IO).launch {
+                            val updateNameResponse = try{ RetrofitInstance.retro.updateName("Bearer $token", updateNameRequest) }
+                            catch(e: SocketTimeoutException){
+                                withContext(Dispatchers.Main){
+                                    progress.dismiss()
+                                    alerts.socketTimeOut()
+                                }
+                                return@launch
+                            }catch(e: Exception){
+                                withContext(Dispatchers.Main){
+                                    progress.dismiss()
+                                    alerts.error(e.toString())
+                                }
+                                return@launch
+                            }
+
+                            withContext(Dispatchers.Main){
+                                progress.dismiss()
+                                if(updateNameResponse.isSuccessful){
+                                    showUpdateNameDialog.dismiss()
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
 
         CoroutineScope(Dispatchers.IO).launch {
             val profile = try{ RetrofitInstance.retro.profile("Bearer $token") }

@@ -53,6 +53,7 @@ class CustomerMechanicMeetUp : FragmentActivity(), OnMapReadyCallback {
 
         val chat = findViewById<LinearLayout>(R.id.chat)
         val cancel = findViewById<LinearLayout>(R.id.cancel)
+        val report = findViewById<LinearLayout>(R.id.report)
         val progress = Progress(this)
         val alerts = Alerts(this)
         val db = TokenDB(this)
@@ -62,6 +63,57 @@ class CustomerMechanicMeetUp : FragmentActivity(), OnMapReadyCallback {
         customerId = intent.getIntExtra("customer_id", 0)
         bookingId = intent.getIntExtra("booking_id",0)
         Log.e("customer_id", customerId.toString())
+
+        report.setOnClickListener{
+            val reportAlert = AlertDialog.Builder(this)
+            val reportAlertView = LayoutInflater.from(this).inflate(R.layout.report_form, null)
+
+            reportAlert.setView(reportAlertView)
+            val showReportAlert = reportAlert.show()
+
+            val violation = reportAlertView.findViewById<TextInputEditText>(R.id.violation)
+            val submitReport = reportAlertView.findViewById<Button>(R.id.submitViolation)
+
+            submitReport.setOnClickListener {
+                if(violation.text.toString().isEmpty()){
+                    violation.error = "Please fill out this field"
+                }else{
+                    progress.showProgress("Please Wait...")
+                    val reportJson = JSONObject()
+                    reportJson.put("user_id", customerId)
+                    reportJson.put("violation", violation.text.toString())
+                    val reportRequest = reportJson.toString().toRequestBody("application/json".toMediaTypeOrNull())
+                    CoroutineScope(Dispatchers.IO).launch {
+                        val submitReportResponse = try{ RetrofitInstance.retro.submitViolation("Bearer $token", reportRequest) }
+                        catch(e: SocketTimeoutException){
+                            withContext(Dispatchers.Main){
+                                progress.dismiss()
+                                alerts.socketTimeOut()
+                            }
+                            return@launch
+                        }catch(e: Exception){
+                            withContext(Dispatchers.Main){
+                                progress.dismiss()
+                                alerts.error(e.toString())
+                            }
+                            return@launch
+                        }
+
+                        withContext(Dispatchers.Main){
+                            progress.dismiss()
+                            showReportAlert.dismiss()
+                            if(submitReportResponse.isSuccessful){
+                                AlertDialog.Builder(this@CustomerMechanicMeetUp)
+                                    .setTitle("Submitted")
+                                    .setMessage("Violation report has been submitted.")
+                                    .setPositiveButton("OK", null)
+                                    .show()
+                            }
+                        }
+                    }
+                }
+            }
+        }
         chat.setOnClickListener{
             val chatBottomSheet = BottomSheetDialog(this)
             val chatView = LayoutInflater.from(this).inflate(R.layout.conversation_layout, null)
