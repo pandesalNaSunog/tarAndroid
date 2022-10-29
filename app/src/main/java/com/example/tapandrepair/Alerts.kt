@@ -19,4 +19,12 @@ class Alerts(private val context: Context) {
             .setPositiveButton("OK", null)
             .show()
     }
+
+    fun wentWrong(){
+        AlertDialog.Builder(context)
+            .setTitle("Error")
+            .setMessage("Something Went Wrong")
+            .setPositiveButton("OK", null)
+            .show()
+    }
 }

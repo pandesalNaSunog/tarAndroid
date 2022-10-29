@@ -108,6 +108,8 @@ class MechanicArrival : FragmentActivity(), OnMapReadyCallback{
                                     .setMessage("Violation report has been submitted.")
                                     .setPositiveButton("OK", null)
                                     .show()
+                            }else{
+                                alerts.wentWrong()
                             }
                         }
                     }

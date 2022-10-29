@@ -59,6 +59,25 @@
         android:textStyle="bold"
         android:textSize="20sp"/>
 
+    <TextView
+        android:padding="10dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Amount Charged"
+        android:background="@color/darkBlue"
+        android:textColor="@color/white"
+        android:textStyle="bold"
+        android:textSize="20sp"/>
+    <TextView
+        android:padding="10dp"
+        android:id="@+id/amountCharged"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Customer Name"
+        android:textColor="@color/black"
+        android:textStyle="bold"
+        android:textSize="20sp"/>
+
     <android.widget.Button
         android:id="@+id/redirect"
         android:layout_marginTop="10dp"

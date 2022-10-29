@@ -57,12 +57,152 @@ class CustomerMechanicMeetUp : FragmentActivity(), OnMapReadyCallback {
         val progress = Progress(this)
         val alerts = Alerts(this)
         val db = TokenDB(this)
+        val confirmArrival = findViewById<Button>(R.id.confirmArrival)
         time = findViewById(R.id.time)
         distance = findViewById(R.id.distance)
         token = db.getToken()
         customerId = intent.getIntExtra("customer_id", 0)
         bookingId = intent.getIntExtra("booking_id",0)
         Log.e("customer_id", customerId.toString())
+
+        confirmArrival.setOnClickListener {
+            arrivedAlert = AlertDialog.Builder(this@CustomerMechanicMeetUp)
+                .setTitle("Arrived")
+                .setMessage("Your have arrived to your customer's location")
+                .setNegativeButton("Cancel", null)
+                .setPositiveButton("Start Fixing"){_,_->
+
+                    progress.showProgress("Please Wait...")
+                    val fixRequestJson = JSONObject()
+                    fixRequestJson.put("booking_id", bookingId)
+                    val fixRequest = fixRequestJson.toString().toRequestBody("application/json".toMediaTypeOrNull())
+                    CoroutineScope(Dispatchers.IO).launch {
+                        val fixResponse = try{ RetrofitInstance.retro.fix("Bearer $token", fixRequest) }
+                        catch(e: SocketTimeoutException){
+                            withContext(Dispatchers.Main){
+                                progress.dismiss()
+                                alerts.socketTimeOut()
+                            }
+                            return@launch
+                        }catch(e: Exception){
+                            withContext(Dispatchers.Main){
+                                progress.dismiss()
+                                alerts.error(e.toString())
+                            }
+                            return@launch
+                        }
+
+                        withContext(Dispatchers.Main){
+                            progress.dismiss()
+                            if(fixResponse.isSuccessful){
+                                arrivedAlert.dismiss()
+                                AlertDialog.Builder(this@CustomerMechanicMeetUp)
+                                    .setTitle("Ongoing")
+                                    .setMessage("Currently servicing customer's vehicle")
+                                    .setCancelable(false)
+                                    .setPositiveButton("Done"){_,_->
+                                        val doneAlert = AlertDialog.Builder(this@CustomerMechanicMeetUp)
+                                        val doneAlertView = LayoutInflater.from(this@CustomerMechanicMeetUp).inflate(R.layout.amount_charged_layout, null)
+
+                                        doneAlert.setView(doneAlertView)
+                                        val showDoneAlert = doneAlert.show()
+
+                                        val amount = doneAlertView.findViewById<TextInputEditText>(R.id.amountCharged)
+                                        val confirm = doneAlertView.findViewById<Button>(R.id.confirm)
+
+                                        confirm.setOnClickListener {
+                                            if(amount.text.toString().isEmpty()){
+                                                amount.error = "Please fill out this field"
+                                            }else{
+                                                progress.showProgress("Please Wait...")
+                                                val doneJson = JSONObject()
+                                                doneJson.put("booking_id", bookingId)
+                                                doneJson.put("amount", amount.text.toString())
+                                                val doneRequest = doneJson.toString().toRequestBody("application/json".toMediaTypeOrNull())
+                                                CoroutineScope(Dispatchers.IO).launch {
+                                                    val doneResponse = try{ RetrofitInstance.retro.done("Bearer $token", doneRequest) }
+                                                    catch(e: SocketTimeoutException){
+                                                        withContext(Dispatchers.Main){
+                                                            progress.dismiss()
+                                                            alerts.socketTimeOut()
+                                                        }
+                                                        return@launch
+                                                    }
+                                                    catch(e: Exception){
+                                                        withContext(Dispatchers.Main){
+                                                            progress.dismiss()
+                                                            alerts.error(e.toString())
+                                                        }
+                                                        return@launch
+                                                    }
+
+                                                    withContext(Dispatchers.Main){
+                                                        progress.dismiss()
+                                                        val wellDoneAlert = AlertDialog.Builder(this@CustomerMechanicMeetUp)
+                                                        val wellDoneAlertView = LayoutInflater.from(this@CustomerMechanicMeetUp).inflate(R.layout.done_response, null)
+
+                                                        wellDoneAlert.setView(wellDoneAlertView)
+                                                        wellDoneAlert.setCancelable(false)
+                                                        val showWellDoneAlert = wellDoneAlert.show()
+
+                                                        val customerName = wellDoneAlertView.findViewById<TextView>(R.id.customerName)
+                                                        val service = wellDoneAlertView.findViewById<TextView>(R.id.service)
+                                                        val vehicleType = wellDoneAlertView.findViewById<TextView>(R.id.vehicleType)
+                                                        val amountCharged = wellDoneAlertView.findViewById<TextView>(R.id.amountCharged)
+                                                        val redirect = wellDoneAlertView.findViewById<Button>(R.id.redirect)
+
+                                                        customerName.text = doneResponse.customer_name
+                                                        service.text = doneResponse.service
+                                                        vehicleType.text = doneResponse.vehicle_type
+                                                        amountCharged.text = "₱${doneResponse.amount}"
+
+                                                        redirect.setOnClickListener {
+
+                                                            progress.showProgress("Please Wait...")
+                                                            val paidJson = JSONObject()
+                                                            paidJson.put("transaction_id", doneResponse.transaction_id)
+                                                            val paidRequest = paidJson.toString().toRequestBody("application/json".toMediaTypeOrNull())
+                                                            CoroutineScope(Dispatchers.IO).launch {
+                                                                val paidResponse = try{ RetrofitInstance.retro.markAsPaid("Bearer $token", paidRequest) }
+                                                                catch(e: SocketTimeoutException){
+                                                                    withContext(Dispatchers.Main){
+                                                                        progress.dismiss()
+                                                                        alerts.socketTimeOut()
+                                                                    }
+                                                                    return@launch
+                                                                }catch(e: Exception){
+                                                                    withContext(Dispatchers.Main){
+                                                                        progress.dismiss()
+                                                                        alerts.error(e.toString())
+                                                                    }
+                                                                    return@launch
+                                                                }
+
+                                                                withContext(Dispatchers.Main){
+                                                                    progress.dismiss()
+                                                                    if(paidResponse.isSuccessful){
+                                                                        val intent = Intent(this@CustomerMechanicMeetUp, ShopOrMechanicHome::class.java)
+                                                                        startActivity(intent)
+                                                                        finishAffinity()
+                                                                    }
+                                                                }
+                                                            }
+
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                    .show()
+                            }else{
+                                alerts.wentWrong()
+                            }
+                        }
+                    }
+                }
+                .show()
+        }
 
         report.setOnClickListener{
             val reportAlert = AlertDialog.Builder(this)
@@ -73,6 +213,8 @@ class CustomerMechanicMeetUp : FragmentActivity(), OnMapReadyCallback {
 
             val violation = reportAlertView.findViewById<TextInputEditText>(R.id.violation)
             val submitReport = reportAlertView.findViewById<Button>(R.id.submitViolation)
+
+
 
             submitReport.setOnClickListener {
                 if(violation.text.toString().isEmpty()){
@@ -108,6 +250,8 @@ class CustomerMechanicMeetUp : FragmentActivity(), OnMapReadyCallback {
                                     .setMessage("Violation report has been submitted.")
                                     .setPositiveButton("OK", null)
                                     .show()
+                            }else{
+                                alerts.wentWrong()
                             }
                         }
                     }
@@ -258,146 +402,7 @@ class CustomerMechanicMeetUp : FragmentActivity(), OnMapReadyCallback {
 
                         Log.e("Travel Distance", mechanicLocationResponse.travel.distance.toString())
                     }
-                    if(mechanicLocationResponse.travel.distance < 1.0){
-
-                        withContext(Dispatchers.Main){
-                            arrivedAlert = AlertDialog.Builder(this@CustomerMechanicMeetUp)
-                                .setTitle("Arrived")
-                                .setMessage("Your have arrived to your customer's location")
-                                .setCancelable(false)
-                                .setPositiveButton("Start Fixing"){_,_->
-                                    val progress = Progress(this@CustomerMechanicMeetUp)
-                                    val alerts = Alerts(this@CustomerMechanicMeetUp)
-
-                                    progress.showProgress("Please Wait...")
-                                    val fixRequestJson = JSONObject()
-                                    fixRequestJson.put("booking_id", bookingId)
-                                    val fixRequest = fixRequestJson.toString().toRequestBody("application/json".toMediaTypeOrNull())
-                                    CoroutineScope(Dispatchers.IO).launch {
-                                        val fixResponse = try{ RetrofitInstance.retro.fix("Bearer $token", fixRequest) }
-                                        catch(e: SocketTimeoutException){
-                                            withContext(Dispatchers.Main){
-                                                progress.dismiss()
-                                                alerts.socketTimeOut()
-                                            }
-                                            return@launch
-                                        }catch(e: Exception){
-                                            withContext(Dispatchers.Main){
-                                                progress.dismiss()
-                                                alerts.error(e.toString())
-                                            }
-                                            return@launch
-                                        }
-
-                                        withContext(Dispatchers.Main){
-                                            progress.dismiss()
-                                            if(fixResponse.isSuccessful){
-                                                arrivedAlert.dismiss()
-                                                AlertDialog.Builder(this@CustomerMechanicMeetUp)
-                                                    .setTitle("Ongoing")
-                                                    .setMessage("Currently servicing customer's vehicle")
-                                                    .setCancelable(false)
-                                                    .setPositiveButton("Done"){_,_->
-                                                        val doneAlert = AlertDialog.Builder(this@CustomerMechanicMeetUp)
-                                                        val doneAlertView = LayoutInflater.from(this@CustomerMechanicMeetUp).inflate(R.layout.amount_charged_layout, null)
-
-                                                        doneAlert.setView(doneAlertView)
-                                                        val showDoneAlert = doneAlert.show()
-
-                                                        val amount = doneAlertView.findViewById<TextInputEditText>(R.id.amountCharged)
-                                                        val confirm = doneAlertView.findViewById<Button>(R.id.confirm)
-
-                                                        confirm.setOnClickListener {
-                                                            if(amount.text.toString().isEmpty()){
-                                                                amount.error = "Please fill out this field"
-                                                            }else{
-                                                                progress.showProgress("Please Wait...")
-                                                                val doneJson = JSONObject()
-                                                                doneJson.put("booking_id", bookingId)
-                                                                doneJson.put("amount", amount.text.toString())
-                                                                val doneRequest = doneJson.toString().toRequestBody("application/json".toMediaTypeOrNull())
-                                                                CoroutineScope(Dispatchers.IO).launch {
-                                                                    val doneResponse = try{ RetrofitInstance.retro.done("Bearer $token", doneRequest) }
-                                                                    catch(e: SocketTimeoutException){
-                                                                        withContext(Dispatchers.Main){
-                                                                            progress.dismiss()
-                                                                            alerts.socketTimeOut()
-                                                                        }
-                                                                        return@launch
-                                                                    }
-                                                                    catch(e: Exception){
-                                                                        withContext(Dispatchers.Main){
-                                                                            progress.dismiss()
-                                                                            alerts.error(e.toString())
-                                                                        }
-                                                                        return@launch
-                                                                    }
-
-                                                                    withContext(Dispatchers.Main){
-                                                                        progress.dismiss()
-                                                                        val wellDoneAlert = AlertDialog.Builder(this@CustomerMechanicMeetUp)
-                                                                        val wellDoneAlertView = LayoutInflater.from(this@CustomerMechanicMeetUp).inflate(R.layout.done_response, null)
-
-                                                                        wellDoneAlert.setView(wellDoneAlertView)
-                                                                        wellDoneAlert.setCancelable(false)
-                                                                        val showWellDoneAlert = wellDoneAlert.show()
-
-                                                                        val customerName = wellDoneAlertView.findViewById<TextView>(R.id.customerName)
-                                                                        val service = wellDoneAlertView.findViewById<TextView>(R.id.service)
-                                                                        val vehicleType = wellDoneAlertView.findViewById<TextView>(R.id.vehicleType)
-                                                                        val redirect = wellDoneAlertView.findViewById<Button>(R.id.redirect)
-
-                                                                        customerName.text = doneResponse.customer_name
-                                                                        service.text = doneResponse.service
-                                                                        vehicleType.text = doneResponse.vehicle_type
-
-                                                                        redirect.setOnClickListener {
-
-                                                                            progress.showProgress("Please Wait...")
-                                                                            val paidJson = JSONObject()
-                                                                            paidJson.put("transaction_id", doneResponse.transaction_id)
-                                                                            val paidRequest = paidJson.toString().toRequestBody("application/json".toMediaTypeOrNull())
-                                                                            CoroutineScope(Dispatchers.IO).launch {
-                                                                                val paidResponse = try{ RetrofitInstance.retro.markAsPaid("Bearer $token", paidRequest) }
-                                                                                catch(e: SocketTimeoutException){
-                                                                                    withContext(Dispatchers.Main){
-                                                                                        progress.dismiss()
-                                                                                        alerts.socketTimeOut()
-                                                                                    }
-                                                                                    return@launch
-                                                                                }catch(e: Exception){
-                                                                                    withContext(Dispatchers.Main){
-                                                                                        progress.dismiss()
-                                                                                        alerts.error(e.toString())
-                                                                                    }
-                                                                                    return@launch
-                                                                                }
-
-                                                                                withContext(Dispatchers.Main){
-                                                                                    progress.dismiss()
-                                                                                    if(paidResponse.isSuccessful){
-                                                                                        val intent = Intent(this@CustomerMechanicMeetUp, ShopOrMechanicHome::class.java)
-                                                                                        startActivity(intent)
-                                                                                        finishAffinity()
-                                                                                    }
-                                                                                }
-                                                                            }
-
-                                                                        }
-                                                                    }
-                                                                }
-                                                            }
-                                                        }
-                                                    }
-                                                    .show()
-                                            }else{
-                                                Log.e("Fix Response", fixResponse.errorBody().toString())
-                                            }
-                                        }
-                                    }
-                                }
-                                .show()
-                        }
+                    if(mechanicLocationResponse.booking_status == "fixing"){
                         break
                     }
                     delay(3000)

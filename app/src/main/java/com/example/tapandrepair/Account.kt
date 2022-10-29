@@ -87,6 +87,109 @@ class Account : Fragment() {
 
             editProfileName.text = name.text.toString()
 
+            updatePassword.setOnClickListener {
+                val currentPasswordDialog = AlertDialog.Builder(requireContext())
+                val currentPasswordView = LayoutInflater.from(requireContext()).inflate(R.layout.password_first_form, null)
+
+                currentPasswordDialog.setView(currentPasswordView)
+
+                val showCurrentPasswordDialog = currentPasswordDialog.show()
+
+                val currentPassword = currentPasswordView.findViewById<TextInputEditText>(R.id.password)
+                val confirm = currentPasswordView.findViewById<Button>(R.id.confirm)
+
+                confirm.setOnClickListener {
+                    if(currentPassword.text.toString().isEmpty()){
+                        currentPassword.error = "Please fill out this field"
+                    }else{
+                        progress.showProgress("Please Wait...")
+                        val currentPasswordJson = JSONObject()
+                        currentPasswordJson.put("password", currentPassword.text.toString())
+                        val currentPasswordRequest = currentPasswordJson.toString().toRequestBody("application/json".toMediaTypeOrNull())
+                        CoroutineScope(Dispatchers.IO).launch {
+                            val currentPasswordResponse = try{ RetrofitInstance.retro.passwordFirst("Bearer $token", currentPasswordRequest) }
+                            catch(e: SocketTimeoutException){
+                                withContext(Dispatchers.Main){
+                                    progress.dismiss()
+                                    alerts.socketTimeOut()
+                                }
+                                return@launch
+                            }catch(e: Exception){
+                                withContext(Dispatchers.Main){
+                                    progress.dismiss()
+                                    alerts.error(e.toString())
+                                }
+                                return@launch
+                            }
+
+                            withContext(Dispatchers.Main){
+                                progress.dismiss()
+                                showCurrentPasswordDialog.dismiss()
+                                if(currentPasswordResponse.isSuccessful){
+
+                                    val updatePasswordDialog = AlertDialog.Builder(requireContext())
+                                    val updatePasswordView = LayoutInflater.from(requireContext()).inflate(R.layout.update_password_form, null)
+
+                                    updatePasswordDialog.setView(updatePasswordView)
+                                    val showUpdatePassword = updatePasswordDialog.show()
+
+                                    val password = updatePasswordView.findViewById<TextInputEditText>(R.id.password)
+                                    val confirmUpdatePassword = updatePasswordView.findViewById<Button>(R.id.confirm)
+
+                                    confirmUpdatePassword.setOnClickListener {
+                                        if(password.text.toString().isEmpty()){
+                                            password.error = "Please fill out this field"
+                                        }else{
+                                            progress.showProgress("Please Wait...")
+                                            val updatePasswordJson = JSONObject()
+                                            updatePasswordJson.put("password", password.text.toString())
+                                            val updatePasswordRequest = updatePasswordJson.toString().toRequestBody("application/json".toMediaTypeOrNull())
+                                            CoroutineScope(Dispatchers.IO).launch {
+                                                val updatePasswordResponse = try{ RetrofitInstance.retro.updatePassword("Bearer $token", updatePasswordRequest) }
+                                                catch(e: SocketTimeoutException){
+                                                    withContext(Dispatchers.Main){
+                                                        progress.dismiss()
+                                                        alerts.socketTimeOut()
+                                                    }
+                                                    return@launch
+                                                }catch(e: Exception){
+                                                    withContext(Dispatchers.Main){
+                                                        progress.dismiss()
+                                                        alerts.error(e.toString())
+                                                    }
+                                                    return@launch
+                                                }
+
+                                                withContext(Dispatchers.Main){
+                                                    progress.dismiss()
+                                                    showUpdatePassword.dismiss()
+
+                                                    if(updatePasswordResponse.isSuccessful){
+                                                        AlertDialog.Builder(requireContext())
+                                                            .setTitle("Success")
+                                                            .setMessage("Password has been successfully changed.")
+                                                            .setPositiveButton("OK", null)
+                                                            .show()
+
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }else{
+                                    AlertDialog.Builder(requireContext())
+                                        .setTitle("Invalid")
+                                        .setMessage("Invalid Password")
+                                        .setPositiveButton("OK", null)
+                                        .show()
+
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
             updateName.setOnClickListener {
                 val updateNameDialog = AlertDialog.Builder(requireContext())
                 val updateNameDialogView = LayoutInflater.from(requireContext()).inflate(R.layout.update_name_form, null)
@@ -130,6 +233,7 @@ class Account : Fragment() {
                                 progress.dismiss()
                                 if(updateNameResponse.isSuccessful){
                                     showUpdateNameDialog.dismiss()
+                                    name.text = "${lastName.text}, ${firstName.text}"
                                 }
                             }
                         }
