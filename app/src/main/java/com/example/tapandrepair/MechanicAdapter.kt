@@ -8,6 +8,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
+import android.widget.HorizontalScrollView
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.cardview.widget.CardView
@@ -32,7 +33,7 @@ class MechanicAdapter(private val list: MutableList<MechanicDetailsItem>, privat
         val curr = list[position]
         holder.itemView.apply {
             val name = findViewById<TextView>(R.id.name)
-            val mechanic = findViewById<CardView>(R.id.mechanic)
+            val mechanicCard = findViewById<CardView>(R.id.mechanic)
             val rating = findViewById<TextView>(R.id.rating)
             val progress = Progress(context)
             val alerts = Alerts(context)
@@ -44,11 +45,11 @@ class MechanicAdapter(private val list: MutableList<MechanicDetailsItem>, privat
             rating.text = curr.average_rating.toString()
             distance.text = "${curr.distance} km."
             shopType.text = curr.mechanic.shop_type
-            mechanic.setOnClickListener{
+            mechanicCard.setOnClickListener{
+                Log.e("hjaf", "hjahfaf")
                 val bookAlert = AlertDialog.Builder(context)
                 val bookAlertView = LayoutInflater.from(context).inflate(R.layout.view_mechanic_profile, null)
                 bookAlert.setView(bookAlertView)
-
                 val book = bookAlertView.findViewById<Button>(R.id.book)
                 val cancel = bookAlertView.findViewById<Button>(R.id.cancel)
                 val thisName = bookAlertView.findViewById<TextView>(R.id.name)

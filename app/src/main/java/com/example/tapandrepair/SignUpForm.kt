@@ -1,6 +1,8 @@
 package com.example.tapandrepair
 
+import android.Manifest
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
@@ -12,6 +14,7 @@ import android.view.LayoutInflater
 import android.widget.Button
 import android.widget.CheckBox
 import android.widget.ImageView
+import androidx.core.app.ActivityCompat
 import androidx.core.view.isVisible
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.textfield.TextInputEditText
@@ -23,6 +26,8 @@ class SignUpForm : AppCompatActivity() {
     private lateinit var validIdImage: ImageView
     private lateinit var image: String
     private lateinit var certificate: String
+    private val selectValidIdCode = 3
+    private val selectCertificationCode = 4
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_sign_up_form)
@@ -49,17 +54,22 @@ class SignUpForm : AppCompatActivity() {
         validIdImage = findViewById(R.id.image)
         certificationImage = findViewById(R.id.certificationImage)
         validId.setOnClickListener {
-            val intent = Intent(Intent.ACTION_PICK)
-            intent.type = "image/*"
-            startActivityForResult(intent,1)
+            if(ActivityCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED){
+                ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE),selectValidIdCode)
+            }else{
+                selectValidId()
+            }
         }
         val userType = intent.getStringExtra("user_type")
 
 
         certification.setOnClickListener {
-            val intent = Intent(Intent.ACTION_PICK)
-            intent.type = "image/*"
-            startActivityForResult(intent,2)
+            if(ActivityCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED){
+                ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE),selectCertificationCode)
+            }else{
+                selectCertification()
+            }
+
         }
 
         if(userType == "user"){
@@ -240,5 +250,31 @@ class SignUpForm : AppCompatActivity() {
 
             certificate = Base64.encodeToString(bytes, Base64.DEFAULT)
         }
+    }
+
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<out String>,
+        grantResults: IntArray
+    ) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+
+        if(requestCode == selectValidIdCode && grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED){
+            selectValidId()
+        }else if(requestCode == selectCertificationCode && grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED){
+            selectCertification()
+        }
+    }
+
+    private fun selectValidId(){
+        val intent = Intent(Intent.ACTION_PICK)
+        intent.type = "image/*"
+        startActivityForResult(intent,1)
+    }
+
+    private fun selectCertification(){
+        val intent = Intent(Intent.ACTION_PICK)
+        intent.type = "image/*"
+        startActivityForResult(intent,2)
     }
 }

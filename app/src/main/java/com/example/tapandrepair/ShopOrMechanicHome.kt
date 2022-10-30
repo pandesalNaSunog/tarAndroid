@@ -1,6 +1,8 @@
 package com.example.tapandrepair
 
+import android.annotation.SuppressLint
 import android.content.Intent
+import android.content.pm.PackageManager
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
@@ -8,6 +10,8 @@ import android.view.LayoutInflater
 import android.widget.Button
 import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
+import androidx.core.app.ActivityCompat
+import com.google.android.gms.location.LocationServices
 import kotlinx.coroutines.*
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.RequestBody.Companion.toRequestBody
@@ -15,6 +19,7 @@ import org.json.JSONObject
 import retrofit2.HttpException
 import java.lang.Error
 import java.net.SocketTimeoutException
+import java.util.jar.Manifest
 
 class ShopOrMechanicHome : AppCompatActivity() {
     private val db = TokenDB(this)
@@ -25,6 +30,10 @@ class ShopOrMechanicHome : AppCompatActivity() {
     lateinit var rating: TextView
     lateinit var cancellation: TextView
     val progress = Progress(this)
+    var long = 0.0
+    var lat = 0.0
+    private val locationServiceRequestCode = 100
+    @SuppressLint("MissingPermission")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_shop_or_mechanic_home)
@@ -38,13 +47,47 @@ class ShopOrMechanicHome : AppCompatActivity() {
         cancellation = findViewById(R.id.cancellation)
         token = db.getToken()
 
-        getMechanicData()
+
+
+        if(ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED){
+            ActivityCompat.requestPermissions(this, arrayOf(android.Manifest.permission.ACCESS_COARSE_LOCATION, android.Manifest.permission.ACCESS_COARSE_LOCATION), locationServiceRequestCode)
+        }else{
+            val client = LocationServices.getFusedLocationProviderClient(this)
+
+            val task = client.lastLocation
+            task.addOnSuccessListener {
+                long = it.longitude
+                lat = it.latitude
+                getMechanicData(long, lat)
+            }
+
+        }
+
 
         logout.setOnClickListener {
             db.delete()
             val intent = Intent(this, Home::class.java)
             startActivity(intent)
             finishAffinity()
+        }
+    }
+
+    @SuppressLint("MissingPermission")
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<out String>,
+        grantResults: IntArray
+    ) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        if(requestCode == locationServiceRequestCode && grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED){
+            val client = LocationServices.getFusedLocationProviderClient(this)
+
+            val task = client.lastLocation
+            task.addOnSuccessListener {
+                long = it.longitude
+                lat = it.latitude
+                getMechanicData(long, lat)
+            }
         }
     }
     private fun hasAcceptedBooking(){
@@ -71,10 +114,14 @@ class ShopOrMechanicHome : AppCompatActivity() {
             }
         }
     }
-    private fun getMechanicData(){
+    private fun getMechanicData(long: Double, lat: Double){
         progress.showProgress("Loading...")
+        val jsonObject = JSONObject()
+        jsonObject.put("lat", lat.toString())
+        jsonObject.put("long", long.toString())
+        val request = jsonObject.toString().toRequestBody("application/json".toMediaTypeOrNull())
         CoroutineScope(Dispatchers.IO).launch {
-            val mechanicData = try{ RetrofitInstance.retro.mechanicData("Bearer $token") }
+            val mechanicData = try{ RetrofitInstance.retro.mechanicData("Bearer $token", request) }
             catch(e: SocketTimeoutException){
                 withContext(Dispatchers.Main){
                     progress.dismiss()

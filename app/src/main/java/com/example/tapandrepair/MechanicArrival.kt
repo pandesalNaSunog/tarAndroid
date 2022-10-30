@@ -155,6 +155,7 @@ class MechanicArrival : FragmentActivity(), OnMapReadyCallback{
                         }
 
                         withContext(Dispatchers.Main){
+                            writeMessage.text.clear()
                             messageAdapter.add(sendMessageResponse)
                         }
                     }

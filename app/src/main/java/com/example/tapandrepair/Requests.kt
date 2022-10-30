@@ -18,8 +18,8 @@ interface Requests {
     @GET("tarapi/public/api/profile")
     suspend fun profile(@Header("Authorization") token: String): ProfileWithBookings
 
-    @GET("tarapi/public/api/mechanics")
-    suspend fun getMechanics(@Header("Authorization") token: String): MechanicDetails
+    @POST("tarapi/public/api/mechanics")
+    suspend fun getMechanics(@Header("Authorization") token: String, @Body request: RequestBody): MechanicDetails
 
     @POST("tarapi/public/api/book")
     suspend fun book(@Header("Authorization") token: String, @Body request: RequestBody): BookingId
@@ -30,8 +30,8 @@ interface Requests {
     @POST("tarapi/public/api/cancel-booking")
     suspend fun cancelBooking(@Header("Authorization") token: String, @Body request: RequestBody): BookingStatus
 
-    @GET("tarapi/public/api/shops")
-    suspend fun getShops(@Header("Authorization") token: String): MechanicDetails
+    @POST("tarapi/public/api/shops")
+    suspend fun getShops(@Header("Authorization") token: String, @Body request: RequestBody): MechanicDetails
 
     @GET("tarapi/public/api/has-booking")
     suspend fun hasBooking(@Header("Authorization") token: String): HasBooking
@@ -60,8 +60,8 @@ interface Requests {
     @POST ("tarapi/public/api/send-message")
     suspend fun sendMessage(@Header("Authorization") token: String, @Body request: RequestBody): Conversation
 
-    @GET("tarapi/public/api/mechanic-data")
-    suspend fun mechanicData(@Header("Authorization") token: String): MechanicData
+    @POST("tarapi/public/api/mechanic-data")
+    suspend fun mechanicData(@Header("Authorization") token: String, @Body request: RequestBody): MechanicData
 
     @GET("tarapi/public/api/has-accepted-booking")
     suspend fun hasAcceptedBooking(@Header("Authorization") token: String): CustomerId

@@ -26,6 +26,9 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import okhttp3.MediaType.Companion.toMediaTypeOrNull
+import okhttp3.RequestBody.Companion.toRequestBody
+import org.json.JSONObject
 import retrofit2.HttpException
 import java.net.SocketTimeoutException
 
@@ -109,6 +112,7 @@ class HomeFragment : Fragment() {
         }
     }
 
+    @SuppressLint("MissingPermission")
     private fun findMechanicFunction(shopType: String, client: FusedLocationProviderClient, progress: Progress, alerts: Alerts, token: String) {
         if (ActivityCompat.checkSelfPermission(
                 requireContext(),
@@ -152,9 +156,13 @@ class HomeFragment : Fragment() {
 
                 if (shopType == "mechanic") {
                     progress.showProgress("We're Currently Searching Mechanics For You")
+                    val jsonObject = JSONObject()
+                    jsonObject.put("lat", latitude)
+                    jsonObject.put("long", longitude)
+                    val request = jsonObject.toString().toRequestBody("application/json".toMediaTypeOrNull())
                     CoroutineScope(Dispatchers.IO).launch {
                         val mechanics = try {
-                            RetrofitInstance.retro.getMechanics("Bearer $token")
+                            RetrofitInstance.retro.getMechanics("Bearer $token", request)
                         } catch (e: SocketTimeoutException) {
                             withContext(Dispatchers.Main) {
                                 progress.dismiss()
@@ -206,9 +214,13 @@ class HomeFragment : Fragment() {
                     }
                 } else {
                     progress.showProgress("We're Currently Searching Repair Shops For You")
+                    val jsonObject = JSONObject()
+                    jsonObject.put("lat", latitude)
+                    jsonObject.put("long", longitude)
+                    val request = jsonObject.toString().toRequestBody("application/json".toMediaTypeOrNull())
                     CoroutineScope(Dispatchers.IO).launch {
                         val mechanics = try {
-                            RetrofitInstance.retro.getShops("Bearer $token")
+                            RetrofitInstance.retro.getShops("Bearer $token", request)
                         } catch (e: SocketTimeoutException) {
                             withContext(Dispatchers.Main) {
                                 progress.dismiss()
