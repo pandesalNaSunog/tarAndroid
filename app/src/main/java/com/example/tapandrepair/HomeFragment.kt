@@ -137,7 +137,7 @@ class HomeFragment : Fragment() {
             val servicesAlert = AlertDialog.Builder(requireContext())
             val servicesAlertView =
                 LayoutInflater.from(requireContext()).inflate(R.layout.choose_service, null)
-            var vehicle = "bike"
+            var vehicle = "Bicycle"
             var service = "general service"
 
 
@@ -159,6 +159,7 @@ class HomeFragment : Fragment() {
                     val jsonObject = JSONObject()
                     jsonObject.put("lat", latitude)
                     jsonObject.put("long", longitude)
+                    jsonObject.put("vehicle", vehicle)
                     val request = jsonObject.toString().toRequestBody("application/json".toMediaTypeOrNull())
                     CoroutineScope(Dispatchers.IO).launch {
                         val mechanics = try {
@@ -217,6 +218,7 @@ class HomeFragment : Fragment() {
                     val jsonObject = JSONObject()
                     jsonObject.put("lat", latitude)
                     jsonObject.put("long", longitude)
+                    jsonObject.put("vehicle", vehicle)
                     val request = jsonObject.toString().toRequestBody("application/json".toMediaTypeOrNull())
                     CoroutineScope(Dispatchers.IO).launch {
                         val mechanics = try {
@@ -318,7 +320,7 @@ class HomeFragment : Fragment() {
 
 
             bike.setOnClickListener {
-                vehicle = "bike"
+                vehicle = "Bicycle"
                 bike.background =
                     getDrawable(requireContext(),R.drawable.solid_blue_button)
                 val img = getDrawable(requireContext(), R.drawable.bike_white)
@@ -335,7 +337,7 @@ class HomeFragment : Fragment() {
                 motorbike.setCompoundDrawablesWithIntrinsicBounds(imgblack2, null, null, null)
             }
             car.setOnClickListener {
-                vehicle = "car"
+                vehicle = "Car"
                 car.background =
                     getDrawable(requireContext(),R.drawable.solid_blue_button)
                 val img = getDrawable(requireContext(), R.drawable.car_white)
@@ -352,7 +354,7 @@ class HomeFragment : Fragment() {
                 motorbike.setCompoundDrawablesWithIntrinsicBounds(imgblack2, null, null, null)
             }
             motorbike.setOnClickListener {
-                vehicle = "motorbike"
+                vehicle = "Motorcycle"
                 motorbike.background =
                     getDrawable(requireContext(),R.drawable.solid_blue_button)
                 val img = getDrawable(requireContext(), R.drawable.motorbike_white)
