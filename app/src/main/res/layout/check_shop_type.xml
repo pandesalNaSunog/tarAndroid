@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="20dp"
+    android:gravity="center">
+
+    <TextView
+        android:layout_margin="30dp"
+        android:textStyle="bold"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="WHAT VEHICLE TYPES DO YOU PROVIDE YOUR SERVICE FOR?"
+        android:textAlignment="center"
+        android:textColor="@color/darkBlue"
+        android:letterSpacing=".4"/>
+
+    <CheckBox
+        android:id="@+id/bike"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textColor="@color/darkBlue"
+        android:text="Bicycle"/>
+    <CheckBox
+        android:textColor="@color/darkBlue"
+        android:id="@+id/motorbike"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Motorcycle"/>
+    <CheckBox
+        android:textColor="@color/darkBlue"
+        android:id="@+id/car"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Car"/>
+    <CheckBox
+        android:id="@+id/all"
+        android:textColor="@color/darkBlue"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="All"/>
+
+    <android.widget.Button
+        android:layout_marginTop="10dp"
+        android:id="@+id/confirm"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/solid_blue_button"
+        android:textColor="@color/white"
+        android:text="Confirm"
+        android:textAllCaps="false"
+        android:textStyle="bold"/>
+
+</LinearLayout>

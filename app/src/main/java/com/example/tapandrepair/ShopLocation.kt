@@ -27,7 +27,10 @@ class ShopLocation : AppCompatActivity() {
 
 
 
-
+        val streetName = intent.getStringExtra("street_name")
+        val barangay = intent.getStringExtra("barangay")
+        val municipality = intent.getStringExtra("municipality")
+        val postalCode = intent.getStringExtra("postal_code")
         val proceed = findViewById<Button>(R.id.proceed)
         val certification = intent.getStringExtra("certification")
         val validId = intent.getStringExtra("valid_id")
@@ -35,9 +38,9 @@ class ShopLocation : AppCompatActivity() {
         val lastName = intent.getStringExtra("last_name")
         val contact = intent.getStringExtra("contact")
         val email = intent.getStringExtra("email")
+        val shopType = intent.getStringExtra("shop_type")
         val userType = intent.getStringExtra("user_type")
         val shopName = intent.getStringExtra("shop_name")
-        val shopAddress = intent.getStringExtra("shop_address")
 
         proceed.setOnClickListener {
             if (ActivityCompat.checkSelfPermission(
@@ -66,10 +69,15 @@ class ShopLocation : AppCompatActivity() {
                     intent.putExtra("user_type", userType)
                     intent.putExtra("valid_id", validId)
                     intent.putExtra("shop_name", shopName)
-                    intent.putExtra("shop_address", shopAddress)
                     intent.putExtra("certification", certification)
                     intent.putExtra("lat", latitude)
                     intent.putExtra("long", longitude)
+                    intent.putExtra("shop_name", shopName)
+                    intent.putExtra("street_name", streetName)
+                    intent.putExtra("barangay", barangay)
+                    intent.putExtra("shop_type", shopType)
+                    intent.putExtra("municipality", municipality)
+                    intent.putExtra("postal_code", postalCode)
                     startActivity(intent)
                     finishAffinity()
                 }

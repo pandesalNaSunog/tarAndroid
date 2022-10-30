@@ -11,5 +11,6 @@ data class Mechanic(
     val last_name: String,
     val status: String,
     val updated_at: String,
-    val user_type: String
+    val user_type: String,
+    val shop_type: String
 )

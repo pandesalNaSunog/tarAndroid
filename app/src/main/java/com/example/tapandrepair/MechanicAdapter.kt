@@ -39,9 +39,11 @@ class MechanicAdapter(private val list: MutableList<MechanicDetailsItem>, privat
             val db = TokenDB(context)
             val token = db.getToken()
             val distance = findViewById<TextView>(R.id.distance)
+            val shopType = findViewById<TextView>(R.id.shopType)
             name.text = "${curr.mechanic.first_name} ${curr.mechanic.last_name}"
             rating.text = curr.average_rating.toString()
             distance.text = "${curr.distance} km."
+            shopType.text = curr.mechanic.shop_type
             mechanic.setOnClickListener{
                 val bookAlert = AlertDialog.Builder(context)
                 val bookAlertView = LayoutInflater.from(context).inflate(R.layout.view_mechanic_profile, null)

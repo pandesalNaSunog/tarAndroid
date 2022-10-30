@@ -72,6 +72,26 @@
                     android:layout_marginStart="10dp"
                     android:textStyle="italic"/>
 
+                <LinearLayout
+                    android:orientation="horizontal"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="10dp">
+                    <TextView
+
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Vehicle Type/s: "
+                        android:textStyle="bold"/>
+                    <TextView
+                        android:id="@+id/shopType"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textStyle="italic"
+                        />
+                </LinearLayout>
+
+
             </LinearLayout>
         </androidx.constraintlayout.widget.ConstraintLayout>
     </androidx.cardview.widget.CardView>
