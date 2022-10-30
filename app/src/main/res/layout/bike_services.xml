@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:padding="10dp">
+
+    <TextView
+        android:layout_width="match_parent"
+        android:textAlignment="center"
+        android:text="Bicycle Services"
+        android:textColor="@color/darkBlue"
+        android:textStyle="bold"
+        android:textSize="20sp"
+        android:layout_height="wrap_content"/>
+
+    <CheckBox
+        android:id="@+id/generalService"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="General Service"
+        android:textColor="@color/darkBlue"/>
+    <CheckBox
+        android:id="@+id/gearTune"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Gear Tune and Alignment"
+        android:textColor="@color/darkBlue"/>
+    <CheckBox
+        android:id="@+id/bolts"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Bolts and Pedals Safety Check"
+        android:textColor="@color/darkBlue"/>
+    <CheckBox
+        android:id="@+id/wheelAlignment"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Wheel Alignment"
+        android:textColor="@color/darkBlue"/>
+
+    <android.widget.Button
+        android:layout_marginTop="10dp"
+        android:id="@+id/search"
+        android:textAllCaps="false"
+        android:textStyle="bold"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/solid_blue_button"
+        android:textColor="@color/white"
+        android:text="Search"/>
+
+</LinearLayout>

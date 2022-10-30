@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:padding="10dp">
+
+    <TextView
+        android:layout_width="match_parent"
+        android:textAlignment="center"
+        android:text="Motorcycle Services"
+        android:textColor="@color/darkBlue"
+        android:textStyle="bold"
+        android:textSize="20sp"
+        android:layout_height="wrap_content"/>
+
+    <CheckBox
+        android:id="@+id/generalService"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="General Service"
+        android:textColor="@color/darkBlue"/>
+    <CheckBox
+        android:id="@+id/changeOil"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Change Oil"
+        android:textColor="@color/darkBlue"/>
+    <CheckBox
+        android:id="@+id/airFilter"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Air Filter Replacement"
+        android:textColor="@color/darkBlue"/>
+    <CheckBox
+        android:id="@+id/tirePressure"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Tire Pressure Maintenance"
+        android:textColor="@color/darkBlue"/>
+    <CheckBox
+        android:id="@+id/coolant"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Coolant Change"
+        android:textColor="@color/darkBlue"/>
+    <CheckBox
+        android:id="@+id/clean"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Clean Chain"
+        android:textColor="@color/darkBlue"/>
+
+    <android.widget.Button
+        android:id="@+id/search"
+        android:textAllCaps="false"
+        android:textStyle="bold"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/solid_blue_button"
+        android:textColor="@color/white"
+        android:text="Search"/>
+
+</LinearLayout>

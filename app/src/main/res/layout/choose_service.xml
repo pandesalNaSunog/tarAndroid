@@ -6,16 +6,6 @@
     android:layout_height="match_parent"
     android:padding="20dp">
 
-    <TextView
-        android:layout_marginTop="20dp"
-        android:id="@+id/textView4"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Select Category"
-        android:textColor="@color/black"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/horizontalScrollView" />
-
     <HorizontalScrollView
         android:id="@+id/horizontalScrollView"
         android:layout_width="match_parent"
@@ -65,72 +55,11 @@
         android:id="@+id/textView3"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Choose Vehicle Type"
-        android:textColor="@color/black"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
-    <HorizontalScrollView
-        android:id="@+id/horizontalScrollView2"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="20dp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/textView4">
-
-        <LinearLayout
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal">
-
-            <android.widget.Button
-                android:id="@+id/generalService"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginRight="10dp"
-                android:background="@drawable/solid_blue_button"
-                android:padding="10dp"
-                android:text="General Service"
-                android:textColor="@color/white"
-                tools:ignore="RtlSymmetry" />
-
-            <android.widget.Button
-                android:id="@+id/puncture"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginRight="10dp"
-                android:background="@drawable/stroke_blue_button"
-                android:padding="10dp"
-                android:text="Puncture &amp; Flat Tyre"
-                android:textColor="@color/darkBlue"
-                tools:ignore="RtlSymmetry" />
-
-            <android.widget.Button
-                android:id="@+id/battery"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:background="@drawable/stroke_blue_button"
-                android:padding="10dp"
-                android:text="Battery Shops"
-                android:textColor="@color/darkBlue"
-                tools:ignore="RtlSymmetry" />
-        </LinearLayout>
-    </HorizontalScrollView>
-
-    <android.widget.Button
-        android:id="@+id/search"
-        android:layout_marginTop="20dp"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="@drawable/solid_blue_button"
-        android:text="Search"
-        android:textColor="@color/white"
-        android:textAllCaps="false"
-        android:textSize="17sp"
+        android:text="CHOOSE VEHICLE TYPE"
+        android:textColor="@color/darkBlue"
         android:textStyle="bold"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/horizontalScrollView2" />
+        app:layout_constraintTop_toTopOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

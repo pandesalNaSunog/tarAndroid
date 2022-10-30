@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:padding="10dp">
+
+    <TextView
+        android:layout_width="match_parent"
+        android:textAlignment="center"
+        android:text="Car Services"
+        android:textColor="@color/darkBlue"
+        android:textStyle="bold"
+        android:textSize="20sp"
+        android:layout_height="wrap_content"/>
+
+    <CheckBox
+        android:id="@+id/full"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Full Car Service"
+        android:textColor="@color/darkBlue"/>
+    <CheckBox
+        android:id="@+id/airFilter"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Air Filter Change"
+        android:textColor="@color/darkBlue"/>
+    <CheckBox
+        android:id="@+id/dual"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Fuel Filter/Spark Plug Change"
+        android:textColor="@color/darkBlue"/>
+    <CheckBox
+        android:id="@+id/extensiveBreak"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Extensive Brake Inspection"
+        android:textColor="@color/darkBlue"/>
+    <CheckBox
+        android:id="@+id/wheelBearings"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Wheel Bearings and Shock Absorbers Inspection"
+        android:textColor="@color/darkBlue"/>
+    <CheckBox
+        android:id="@+id/electrical"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Electrical Components Testing"
+        android:textColor="@color/darkBlue"/>
+    <CheckBox
+        android:id="@+id/aircon"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Air Conditioning System Inspection"
+        android:textColor="@color/darkBlue"/>
+
+    <CheckBox
+        android:id="@+id/radiator"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Radiator and Coolant Checking"
+        android:textColor="@color/darkBlue"/>
+
+    <android.widget.Button
+        android:id="@+id/search"
+        android:layout_marginTop="10dp"
+        android:textAllCaps="false"
+        android:textStyle="bold"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/solid_blue_button"
+        android:textColor="@color/white"
+        android:text="Search"/>
+
+</LinearLayout>

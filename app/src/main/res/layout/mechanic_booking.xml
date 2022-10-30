@@ -59,6 +59,22 @@
         android:textColor="@color/black"
         android:textSize="20sp" />
 
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textAlignment="center"
+        android:text="Customer Location"
+        android:background="@color/darkBlue"
+        android:textColor="@color/white"
+        android:textSize="20sp"
+        android:textStyle="bold"/>
+
+    <fragment
+        android:id="@+id/maps"
+        android:layout_width="match_parent"
+        android:layout_height="200dp"
+        android:name="com.google.android.gms.maps.SupportMapFragment"/>
+
 
     <android.widget.Button
         android:id="@+id/accept"

@@ -14,6 +14,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
+import android.widget.CheckBox
 import androidx.appcompat.content.res.AppCompatResources.getDrawable
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
@@ -48,6 +49,7 @@ class HomeFragment : Fragment() {
     private var param2: String? = null
     private var latitude = 0.0
     private var longitude = 0.0
+    private lateinit var servicesSheetView: View
     private lateinit var showServiceAlert: AlertDialog
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -145,180 +147,6 @@ class HomeFragment : Fragment() {
             val car = servicesAlertView.findViewById<Button>(R.id.car)
             val motorbike = servicesAlertView.findViewById<Button>(R.id.motorbike)
 
-            val generalService = servicesAlertView.findViewById<Button>(R.id.generalService)
-            val puncture = servicesAlertView.findViewById<Button>(R.id.puncture)
-            val battery = servicesAlertView.findViewById<Button>(R.id.battery)
-            val search = servicesAlertView.findViewById<Button>(R.id.search)
-
-            search.setOnClickListener {
-                showServiceAlert.dismiss()
-
-
-                if (shopType == "mechanic") {
-                    progress.showProgress("We're Currently Searching Mechanics For You")
-                    val jsonObject = JSONObject()
-                    jsonObject.put("lat", latitude)
-                    jsonObject.put("long", longitude)
-                    jsonObject.put("vehicle", vehicle)
-                    val request = jsonObject.toString().toRequestBody("application/json".toMediaTypeOrNull())
-                    CoroutineScope(Dispatchers.IO).launch {
-                        val mechanics = try {
-                            RetrofitInstance.retro.getMechanics("Bearer $token", request)
-                        } catch (e: SocketTimeoutException) {
-                            withContext(Dispatchers.Main) {
-                                progress.dismiss()
-                                alerts.socketTimeOut()
-                            }
-                            return@launch
-                        } catch (e: HttpException) {
-                            withContext(Dispatchers.Main) {
-                                progress.dismiss()
-                                AlertDialog.Builder(context)
-                                    .setTitle("Error")
-                                    .setMessage("You're Currently Booked to a Mechanic/Shop")
-                                    .setPositiveButton("OK", null)
-                                    .show()
-                            }
-                            return@launch
-                        } catch (e: Exception) {
-                            withContext(Dispatchers.Main) {
-                                progress.dismiss()
-                                alerts.error(e.toString())
-                            }
-                            return@launch
-                        }
-
-                        withContext(Dispatchers.Main) {
-                            progress.dismiss()
-                            val mechanicsAlert = AlertDialog.Builder(requireContext())
-                            val mechanicsAlertView = LayoutInflater.from(requireContext())
-                                .inflate(R.layout.suggested_mechanics, null)
-                            mechanicsAlert.setView(mechanicsAlertView)
-
-                            val mechanicAdapter = MechanicAdapter(
-                                mutableListOf(),
-                                vehicle,
-                                service,
-                                latitude,
-                                longitude
-                            )
-                            val mechanicRecycler =
-                                mechanicsAlertView.findViewById<RecyclerView>(R.id.mechanicsRecycler)
-                            mechanicRecycler.adapter = mechanicAdapter
-                            mechanicRecycler.layoutManager = LinearLayoutManager(requireContext())
-
-                            mechanicsAlert.show()
-                            for (i in mechanics.indices) {
-                                mechanicAdapter.add(mechanics[i])
-                            }
-                        }
-                    }
-                } else {
-                    progress.showProgress("We're Currently Searching Repair Shops For You")
-                    val jsonObject = JSONObject()
-                    jsonObject.put("lat", latitude)
-                    jsonObject.put("long", longitude)
-                    jsonObject.put("vehicle", vehicle)
-                    val request = jsonObject.toString().toRequestBody("application/json".toMediaTypeOrNull())
-                    CoroutineScope(Dispatchers.IO).launch {
-                        val mechanics = try {
-                            RetrofitInstance.retro.getShops("Bearer $token", request)
-                        } catch (e: SocketTimeoutException) {
-                            withContext(Dispatchers.Main) {
-                                progress.dismiss()
-                                alerts.socketTimeOut()
-                            }
-                            return@launch
-                        } catch (e: HttpException) {
-                            withContext(Dispatchers.Main) {
-                                progress.dismiss()
-                                AlertDialog.Builder(context)
-                                    .setTitle("Error")
-                                    .setMessage("You're Currently Booked to a Mechanic/Shop")
-                                    .setPositiveButton("OK", null)
-                                    .show()
-                            }
-                            return@launch
-                        } catch (e: Exception) {
-                            withContext(Dispatchers.Main) {
-                                progress.dismiss()
-                                alerts.error(e.toString())
-                            }
-                            return@launch
-                        }
-
-                        withContext(Dispatchers.Main) {
-                            progress.dismiss()
-                            val mechanicsAlert = AlertDialog.Builder(requireContext())
-                            val mechanicsAlertView = LayoutInflater.from(requireContext())
-                                .inflate(R.layout.suggested_mechanics, null)
-                            mechanicsAlert.setView(mechanicsAlertView)
-
-                            val mechanicAdapter = MechanicAdapter(
-                                mutableListOf(),
-                                vehicle,
-                                service,
-                                latitude,
-                                longitude
-                            )
-                            val mechanicRecycler =
-                                mechanicsAlertView.findViewById<RecyclerView>(R.id.mechanicsRecycler)
-                            mechanicRecycler.adapter = mechanicAdapter
-                            mechanicRecycler.layoutManager = LinearLayoutManager(requireContext())
-
-                            mechanicsAlert.show()
-                            for (i in mechanics.indices) {
-                                mechanicAdapter.add(mechanics[i])
-                            }
-                        }
-                    }
-                }
-            }
-
-
-            generalService.setOnClickListener {
-                service = "general service"
-                generalService.background =
-                    getDrawable(requireContext(), R.drawable.solid_blue_button)
-                generalService.setTextColor(Color.parseColor("#FFFFFF"))
-
-                puncture.background =
-                    getDrawable(requireContext(), R.drawable.stroke_blue_button)
-                puncture.setTextColor(Color.parseColor("#00007D"))
-
-                battery.background =
-                    getDrawable(requireContext(), R.drawable.stroke_blue_button)
-                battery.setTextColor(Color.parseColor("#00007D"))
-            }
-            puncture.setOnClickListener {
-                service = "puncture and flat tyre"
-                puncture.background =
-                    getDrawable(requireContext(), R.drawable.solid_blue_button)
-                puncture.setTextColor(Color.parseColor("#FFFFFF"))
-
-                generalService.background =
-                    getDrawable(requireContext(), R.drawable.stroke_blue_button)
-                generalService.setTextColor(Color.parseColor("#00007D"))
-
-                battery.background =
-                    getDrawable(requireContext(), R.drawable.stroke_blue_button)
-                battery.setTextColor(Color.parseColor("#00007D"))
-            }
-            battery.setOnClickListener {
-                service = "battery shops"
-                battery.background = getDrawable(requireContext(), R.drawable.solid_blue_button)
-                battery.setTextColor(Color.parseColor("#FFFFFF"))
-
-                puncture.background =
-                    getDrawable(requireContext(), R.drawable.stroke_blue_button)
-                puncture.setTextColor(Color.parseColor("#00007D"))
-
-                generalService.background =
-                    getDrawable(requireContext(), R.drawable.stroke_blue_button)
-                generalService.setTextColor(Color.parseColor("#00007D"))
-            }
-
-
             bike.setOnClickListener {
                 vehicle = "Bicycle"
                 bike.background =
@@ -335,6 +163,8 @@ class HomeFragment : Fragment() {
                     getDrawable(requireContext(),R.drawable.stroke_blue_button)
                 val imgblack2 = getDrawable(requireContext(), R.drawable.motorbike_black)
                 motorbike.setCompoundDrawablesWithIntrinsicBounds(imgblack2, null, null, null)
+
+                openServices(vehicle,shopType, progress,alerts, token)
             }
             car.setOnClickListener {
                 vehicle = "Car"
@@ -352,6 +182,7 @@ class HomeFragment : Fragment() {
                     getDrawable(requireContext(),R.drawable.stroke_blue_button)
                 val imgblack2 = getDrawable(requireContext(), R.drawable.motorbike_black)
                 motorbike.setCompoundDrawablesWithIntrinsicBounds(imgblack2, null, null, null)
+                openServices(vehicle,shopType, progress,alerts, token)
             }
             motorbike.setOnClickListener {
                 vehicle = "Motorcycle"
@@ -369,10 +200,206 @@ class HomeFragment : Fragment() {
                     getDrawable(requireContext(),R.drawable.stroke_blue_button)
                 val imgblack2 = getDrawable(requireContext(), R.drawable.bike_black)
                 bike.setCompoundDrawablesWithIntrinsicBounds(imgblack2, null, null, null)
+                openServices(vehicle,shopType, progress,alerts, token)
             }
             servicesAlert.setView(servicesAlertView)
             showServiceAlert = servicesAlert.show()
         }
+    }
+
+    private fun openServices(vehicle: String, shopType: String, progress: Progress, alerts: Alerts, token: String){
+        val servicesSheet = BottomSheetDialog(requireContext())
+        val servicesArray = ArrayList<CheckBox>()
+
+        if(vehicle == "Bicycle"){
+            servicesSheetView = LayoutInflater.from(requireContext()).inflate(R.layout.bike_services, null)
+
+            val generalService = servicesSheetView.findViewById<CheckBox>(R.id.generalService)
+            val gearTune = servicesSheetView.findViewById<CheckBox>(R.id.gearTune)
+            val bolts = servicesSheetView.findViewById<CheckBox>(R.id.bolts)
+            val wheel = servicesSheetView.findViewById<CheckBox>(R.id.wheelAlignment)
+
+            servicesArray.add(generalService)
+            servicesArray.add(gearTune)
+            servicesArray.add(bolts)
+            servicesArray.add(wheel)
+        }else if(vehicle == "Motorcycle"){
+            servicesSheetView = LayoutInflater.from(requireContext()).inflate(R.layout.motorcycle_services, null)
+            val generalService = servicesSheetView.findViewById<CheckBox>(R.id.generalService)
+            val changeOil = servicesSheetView.findViewById<CheckBox>(R.id.changeOil)
+            val airFilter = servicesSheetView.findViewById<CheckBox>(R.id.airFilter)
+            val tirePressure = servicesSheetView.findViewById<CheckBox>(R.id.tirePressure)
+            val coolant = servicesSheetView.findViewById<CheckBox>(R.id.coolant)
+            val clean = servicesSheetView.findViewById<CheckBox>(R.id.clean)
+            servicesArray.add(generalService)
+            servicesArray.add(changeOil)
+            servicesArray.add(airFilter)
+            servicesArray.add(tirePressure)
+            servicesArray.add(coolant)
+            servicesArray.add(clean)
+        }else{
+            servicesSheetView = LayoutInflater.from(requireContext()).inflate(R.layout.car_services, null)
+            val full = servicesSheetView.findViewById<CheckBox>(R.id.full)
+            val airFilter = servicesSheetView.findViewById<CheckBox>(R.id.airFilter)
+            val dual = servicesSheetView.findViewById<CheckBox>(R.id.dual)
+            val extensive = servicesSheetView.findViewById<CheckBox>(R.id.extensiveBreak)
+            val wheelBearings = servicesSheetView.findViewById<CheckBox>(R.id.wheelBearings)
+            val electrical = servicesSheetView.findViewById<CheckBox>(R.id.electrical)
+            val aircon = servicesSheetView.findViewById<CheckBox>(R.id.aircon)
+            val radiator = servicesSheetView.findViewById<CheckBox>(R.id.radiator)
+            servicesArray.add(full)
+            servicesArray.add(dual)
+            servicesArray.add(airFilter)
+            servicesArray.add(extensive)
+            servicesArray.add(wheelBearings)
+            servicesArray.add(electrical)
+            servicesArray.add(aircon)
+            servicesArray.add(radiator)
+        }
+        val search = servicesSheetView.findViewById<Button>(R.id.search)
+        servicesSheet.setContentView(servicesSheetView)
+        servicesSheet.show()
+
+        search.setOnClickListener {
+            showServiceAlert.dismiss()
+            var serviceString = ""
+            val checkedServicesArray = ArrayList<CheckBox>()
+
+            for(i in servicesArray.indices){
+                if(servicesArray[i].isChecked){
+                    checkedServicesArray.add(servicesArray[i])
+                }
+            }
+
+            for(i in checkedServicesArray.indices){
+                serviceString += if(i + 1 != checkedServicesArray.size){
+                    "${checkedServicesArray[i].text}/"
+                }else{
+                    "${checkedServicesArray[i].text}"
+                }
+            }
+
+            if (shopType == "mechanic") {
+                progress.showProgress("We're Currently Searching Mechanics For You")
+                val jsonObject = JSONObject()
+                jsonObject.put("lat", latitude)
+                jsonObject.put("long", longitude)
+                jsonObject.put("vehicle", vehicle)
+                val request = jsonObject.toString().toRequestBody("application/json".toMediaTypeOrNull())
+                CoroutineScope(Dispatchers.IO).launch {
+                    val mechanics = try {
+                        RetrofitInstance.retro.getMechanics("Bearer $token", request)
+                    } catch (e: SocketTimeoutException) {
+                        withContext(Dispatchers.Main) {
+                            progress.dismiss()
+                            alerts.socketTimeOut()
+                        }
+                        return@launch
+                    } catch (e: HttpException) {
+                        withContext(Dispatchers.Main) {
+                            progress.dismiss()
+                            AlertDialog.Builder(context)
+                                .setTitle("Error")
+                                .setMessage("You're Currently Booked to a Mechanic/Shop")
+                                .setPositiveButton("OK", null)
+                                .show()
+                        }
+                        return@launch
+                    } catch (e: Exception) {
+                        withContext(Dispatchers.Main) {
+                            progress.dismiss()
+                            alerts.error(e.toString())
+                        }
+                        return@launch
+                    }
+
+                    withContext(Dispatchers.Main) {
+                        progress.dismiss()
+                        val mechanicsAlert = AlertDialog.Builder(requireContext())
+                        val mechanicsAlertView = LayoutInflater.from(requireContext())
+                            .inflate(R.layout.suggested_mechanics, null)
+                        mechanicsAlert.setView(mechanicsAlertView)
+
+                        val mechanicAdapter = MechanicAdapter(
+                            mutableListOf(),
+                            vehicle,
+                            serviceString,
+                            latitude,
+                            longitude
+                        )
+                        val mechanicRecycler =
+                            mechanicsAlertView.findViewById<RecyclerView>(R.id.mechanicsRecycler)
+                        mechanicRecycler.adapter = mechanicAdapter
+                        mechanicRecycler.layoutManager = LinearLayoutManager(requireContext())
+
+                        mechanicsAlert.show()
+                        for (i in mechanics.indices) {
+                            mechanicAdapter.add(mechanics[i])
+                        }
+                    }
+                }
+            } else {
+                progress.showProgress("We're Currently Searching Repair Shops For You")
+                val jsonObject = JSONObject()
+                jsonObject.put("lat", latitude)
+                jsonObject.put("long", longitude)
+                jsonObject.put("vehicle", vehicle)
+                val request = jsonObject.toString().toRequestBody("application/json".toMediaTypeOrNull())
+                CoroutineScope(Dispatchers.IO).launch {
+                    val mechanics = try {
+                        RetrofitInstance.retro.getShops("Bearer $token", request)
+                    } catch (e: SocketTimeoutException) {
+                        withContext(Dispatchers.Main) {
+                            progress.dismiss()
+                            alerts.socketTimeOut()
+                        }
+                        return@launch
+                    } catch (e: HttpException) {
+                        withContext(Dispatchers.Main) {
+                            progress.dismiss()
+                            AlertDialog.Builder(context)
+                                .setTitle("Error")
+                                .setMessage("You're Currently Booked to a Mechanic/Shop")
+                                .setPositiveButton("OK", null)
+                                .show()
+                        }
+                        return@launch
+                    } catch (e: Exception) {
+                        withContext(Dispatchers.Main) {
+                            progress.dismiss()
+                            alerts.error(e.toString())
+                        }
+                        return@launch
+                    }
+
+                    withContext(Dispatchers.Main) {
+                        progress.dismiss()
+                        val mechanicsAlert = AlertDialog.Builder(requireContext())
+                        val mechanicsAlertView = LayoutInflater.from(requireContext())
+                            .inflate(R.layout.suggested_mechanics, null)
+                        mechanicsAlert.setView(mechanicsAlertView)
+
+                        val mechanicAdapter = MechanicAdapter(
+                            mutableListOf(),
+                            vehicle,
+                            serviceString,
+                            latitude,
+                            longitude
+                        )
+                        val mechanicRecycler =
+                            mechanicsAlertView.findViewById<RecyclerView>(R.id.mechanicsRecycler)
+                        mechanicRecycler.adapter = mechanicAdapter
+                        mechanicRecycler.layoutManager = LinearLayoutManager(requireContext())
+
+                        mechanicsAlert.show()
+                        for (i in mechanics.indices) {
+                            mechanicAdapter.add(mechanics[i])
+                        }
+                    }
+                }
+            }
+        }
+
     }
 
     companion object {

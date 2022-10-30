@@ -11,7 +11,14 @@ import android.widget.Button
 import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
 import androidx.core.app.ActivityCompat
+import androidx.fragment.app.FragmentActivity
 import com.google.android.gms.location.LocationServices
+import com.google.android.gms.maps.CameraUpdateFactory
+import com.google.android.gms.maps.GoogleMap
+import com.google.android.gms.maps.OnMapReadyCallback
+import com.google.android.gms.maps.SupportMapFragment
+import com.google.android.gms.maps.model.LatLng
+import com.google.android.gms.maps.model.MarkerOptions
 import kotlinx.coroutines.*
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.RequestBody.Companion.toRequestBody
@@ -21,7 +28,7 @@ import java.lang.Error
 import java.net.SocketTimeoutException
 import java.util.jar.Manifest
 
-class ShopOrMechanicHome : AppCompatActivity() {
+class ShopOrMechanicHome : FragmentActivity(), OnMapReadyCallback {
     private val db = TokenDB(this)
     lateinit var token: String
     val alerts = Alerts(this)
@@ -32,7 +39,11 @@ class ShopOrMechanicHome : AppCompatActivity() {
     val progress = Progress(this)
     var long = 0.0
     var lat = 0.0
+
+    var customerLat = 0.0
+    var customerLong = 0.0
     private val locationServiceRequestCode = 100
+    private lateinit var map: GoogleMap
     @SuppressLint("MissingPermission")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -177,7 +188,12 @@ class ShopOrMechanicHome : AppCompatActivity() {
                     val service = bookingALertView.findViewById<TextView>(R.id.service)
                     val vehicleType = bookingALertView.findViewById<TextView>(R.id.vehicleType)
                     val accept = bookingALertView.findViewById<Button>(R.id.accept)
+                    val mapFragment = supportFragmentManager.findFragmentById(R.id.maps) as SupportMapFragment
+                    mapFragment.getMapAsync(this@ShopOrMechanicHome)
                     val deny = bookingALertView.findViewById<Button>(R.id.deny)
+
+                    customerLat = mechanicBooking.lat.toDouble()
+                    customerLong = mechanicBooking.long.toDouble()
 
                     deny.setOnClickListener {
                         progress.showProgress("Please Wait...")
@@ -265,5 +281,31 @@ class ShopOrMechanicHome : AppCompatActivity() {
                 delay(5000)
             }while(!hasBooking)
         }
+    }
+
+
+    @SuppressLint("MissingPermission")
+    override fun onMapReady(googleMap: GoogleMap) {
+        map = googleMap
+        map.mapType = GoogleMap.MAP_TYPE_NORMAL
+        map.isTrafficEnabled = true
+
+        val customerLocation = LatLng(customerLat, customerLong)
+        if(ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED){
+            ActivityCompat.requestPermissions(this, arrayOf(android.Manifest.permission.ACCESS_COARSE_LOCATION, android.Manifest.permission.ACCESS_COARSE_LOCATION), locationServiceRequestCode)
+        }else{
+            val client = LocationServices.getFusedLocationProviderClient(this)
+
+            val task = client.lastLocation
+            task.addOnSuccessListener {
+                long = it.longitude
+                lat = it.latitude
+            }
+
+        }
+        val myLocation = LatLng(lat, long)
+        map.addMarker(MarkerOptions().position(customerLocation).title("Customer Location"))
+        map.addMarker(MarkerOptions().position(myLocation).title("My Location"))
+        map.moveCamera(CameraUpdateFactory.newLatLngZoom(customerLocation, 10f))
     }
 }

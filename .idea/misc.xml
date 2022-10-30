@@ -15,7 +15,9 @@
         <entry key="..\:/TapAndRepair/app/src/main/res/layout/activity_sign_up_form.xml" value="0.20213675213675214" />
         <entry key="..\:/TapAndRepair/app/src/main/res/layout/agree_to_terms.xml" value="0.30085470085470084" />
         <entry key="..\:/TapAndRepair/app/src/main/res/layout/amount_charged_layout.xml" value="0.33" />
+        <entry key="..\:/TapAndRepair/app/src/main/res/layout/bike_services.xml" value="0.25" />
         <entry key="..\:/TapAndRepair/app/src/main/res/layout/booking_item.xml" value="0.22258064516129034" />
+        <entry key="..\:/TapAndRepair/app/src/main/res/layout/car_services.xml" value="0.20555555555555555" />
         <entry key="..\:/TapAndRepair/app/src/main/res/layout/check_shop_type.xml" value="0.33" />
         <entry key="..\:/TapAndRepair/app/src/main/res/layout/choose_service.xml" value="0.30085470085470084" />
         <entry key="..\:/TapAndRepair/app/src/main/res/layout/conversation_layout.xml" value="0.2012820512820513" />
@@ -26,6 +28,7 @@
         <entry key="..\:/TapAndRepair/app/src/main/res/layout/loading_screen.xml" value="0.30085470085470084" />
         <entry key="..\:/TapAndRepair/app/src/main/res/layout/mechanic_booking.xml" value="0.30085470085470084" />
         <entry key="..\:/TapAndRepair/app/src/main/res/layout/mechanic_item.xml" value="0.5" />
+        <entry key="..\:/TapAndRepair/app/src/main/res/layout/motorcycle_services.xml" value="0.20213675213675214" />
         <entry key="..\:/TapAndRepair/app/src/main/res/layout/password_first_form.xml" value="0.288034188034188" />
         <entry key="..\:/TapAndRepair/app/src/main/res/layout/rate.xml" value="0.4068582020389249" />
         <entry key="..\:/TapAndRepair/app/src/main/res/layout/receiver_item.xml" value="0.30085470085470084" />
