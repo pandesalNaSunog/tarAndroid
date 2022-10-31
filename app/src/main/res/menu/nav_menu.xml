@@ -5,11 +5,7 @@
         android:icon="@drawable/ic_baseline_home_24"
         android:id="@+id/homeFragment"/>
     <item
-        android:title="Favorites"
-        android:icon="@drawable/ic_baseline_favorite_24"
-        android:id="@+id/favorites"/>
-    <item
-        android:title="Notifications"
+        android:title="Activity Log"
         android:icon="@drawable/ic_baseline_notifications_24"
         android:id="@+id/notifications"/>
     <item

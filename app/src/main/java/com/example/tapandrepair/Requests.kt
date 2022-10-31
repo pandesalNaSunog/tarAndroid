@@ -92,4 +92,7 @@ interface Requests {
 
     @POST("tarapi/public/api/password-first")
     suspend fun passwordFirst(@Header("Authorization") token: String, @Body request: RequestBody): Response<ResponseBody>
+
+    @GET("tarapi/public/api/activity-log")
+    suspend fun activityLog(@Header("Authorization") token: String): ActivityLog
 }

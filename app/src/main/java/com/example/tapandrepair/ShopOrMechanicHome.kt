@@ -10,7 +10,9 @@ import android.view.LayoutInflater
 import android.widget.Button
 import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
+import androidx.cardview.widget.CardView
 import androidx.core.app.ActivityCompat
+import androidx.core.view.isVisible
 import androidx.fragment.app.FragmentActivity
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.maps.CameraUpdateFactory
@@ -19,6 +21,8 @@ import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.MarkerOptions
+import com.google.android.material.bottomsheet.BottomSheetDialog
+import com.google.android.material.textfield.TextInputEditText
 import kotlinx.coroutines.*
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.RequestBody.Companion.toRequestBody
@@ -39,9 +43,11 @@ class ShopOrMechanicHome : FragmentActivity(), OnMapReadyCallback {
     val progress = Progress(this)
     var long = 0.0
     var lat = 0.0
-
+    lateinit var economy: TextView
     var customerLat = 0.0
     var customerLong = 0.0
+    lateinit var shopAddress: TextView
+    lateinit var addressCard: CardView
     private val locationServiceRequestCode = 100
     private lateinit var map: GoogleMap
     @SuppressLint("MissingPermission")
@@ -57,6 +63,80 @@ class ShopOrMechanicHome : FragmentActivity(), OnMapReadyCallback {
         rating = findViewById(R.id.rating)
         cancellation = findViewById(R.id.cancellation)
         token = db.getToken()
+        addressCard = findViewById(R.id.addressCard)
+        shopAddress = findViewById(R.id.shopAddress)
+
+        economy = findViewById(R.id.textView7)
+
+        addressCard.isVisible = false
+
+
+
+        val editProfile = findViewById<Button>(R.id.editProfile)
+
+        editProfile.setOnClickListener {
+            val editProfileBottomSheet = BottomSheetDialog(this)
+            val editProfileBottomSheetView = LayoutInflater.from(this).inflate(R.layout.update_profile_layout, null)
+            editProfileBottomSheet.setContentView(editProfileBottomSheetView)
+            editProfileBottomSheet.show()
+
+            val sname = editProfileBottomSheetView.findViewById<TextView>(R.id.name)
+            val updateName = editProfileBottomSheetView.findViewById<Button>(R.id.updateName)
+
+            sname.text = name.text.toString()
+
+            updateName.setOnClickListener {
+                val updateNameAlert = AlertDialog.Builder(this)
+                val updateNameAlertView = LayoutInflater.from(this).inflate(R.layout.update_name_form, null)
+                updateNameAlert.setView(updateNameAlertView)
+                val showUpdateNameAlert = updateNameAlert.show()
+
+                val firstName = updateNameAlertView.findViewById<TextInputEditText>(R.id.firstName)
+                val lastName = updateNameAlertView.findViewById<TextInputEditText>(R.id.lastName)
+                val confirm = updateNameAlertView.findViewById<Button>(R.id.confirm)
+
+
+                confirm.setOnClickListener {
+                    if(firstName.text.toString().isEmpty()){
+                        firstName.error = "Please fill out this field"
+                    }else if(lastName.text.toString().isEmpty()){
+                        lastName.error = "Please fill out this field"
+                    }else{
+                        progress.showProgress("Please Wait...")
+                        val updateNameJson = JSONObject()
+                        updateNameJson.put("first_name", firstName.text.toString())
+                        updateNameJson.put("last_name", lastName.text.toString())
+                        val request = updateNameJson.toString().toRequestBody("application/json".toMediaTypeOrNull())
+
+                        CoroutineScope(Dispatchers.IO).launch {
+                            val updateNameResponse = try{ RetrofitInstance.retro.updateName("Bearer $token", request) }
+                            catch(e: SocketTimeoutException){
+                                withContext(Dispatchers.Main){
+                                    progress.dismiss()
+                                    alerts.socketTimeOut()
+                                }
+                                return@launch
+                            }catch(e: Exception){
+                                withContext(Dispatchers.Main){
+                                    progress.dismiss()
+                                    alerts.error(e.toString())
+                                }
+                                return@launch
+                            }
+
+                            withContext(Dispatchers.Main){
+                                progress.dismiss()
+                                if(updateNameResponse.isSuccessful){
+                                    showUpdateNameAlert.dismiss()
+                                    sname.text = "${firstName.text} ${lastName.text}"
+                                    name.text = "${firstName.text} ${lastName.text}"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
 
 
 
@@ -153,6 +233,14 @@ class ShopOrMechanicHome : FragmentActivity(), OnMapReadyCallback {
                 acceptance.text = "${mechanicData.acceptance}%"
                 rating.text = mechanicData.rating.toString()
                 cancellation.text = "${mechanicData.cancellation}%"
+                if(mechanicData.mechanic.user_type == "owner"){
+                    economy.text = "Repair Shop Economy"
+                    addressCard.isVisible = true
+                    shopAddress.text = "${mechanicData.mechanic.postal_code} ${mechanicData.mechanic.street_name}, ${mechanicData.mechanic.barangay}, ${mechanicData.mechanic.municipality}, Philippines"
+                }else{
+                    addressCard.isVisible = false
+                    economy.text = "Mechanic Economy"
+                }
                 hasAcceptedBooking()
             }
         }
@@ -182,7 +270,7 @@ class ShopOrMechanicHome : FragmentActivity(), OnMapReadyCallback {
 
                     bookingAlert.setView(bookingALertView)
                     bookingAlert.setCancelable(false)
-                    bookingAlert.show()
+                    val showBookingAlert = bookingAlert.show()
 
                     val name = bookingALertView.findViewById<TextView>(R.id.name)
                     val service = bookingALertView.findViewById<TextView>(R.id.service)
@@ -221,10 +309,14 @@ class ShopOrMechanicHome : FragmentActivity(), OnMapReadyCallback {
 
                             withContext(Dispatchers.Main) {
                                 progress.dismiss()
-                                if (denyBooking.isSuccessful) {
+                                if(denyBooking.isSuccessful){
                                     AlertDialog.Builder(this@ShopOrMechanicHome)
                                         .setTitle("Message")
                                         .setMessage("Denied")
+                                        .setCancelable(false)
+                                        .setPositiveButton("OK"){_,_->
+                                            showBookingAlert.dismiss()
+                                        }
                                         .show()
                                     hasBooking = false
                                 } else {
@@ -301,7 +393,6 @@ class ShopOrMechanicHome : FragmentActivity(), OnMapReadyCallback {
                 long = it.longitude
                 lat = it.latitude
             }
-
         }
         val myLocation = LatLng(lat, long)
         map.addMarker(MarkerOptions().position(customerLocation).title("Customer Location"))

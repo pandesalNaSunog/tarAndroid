@@ -5,6 +5,13 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import java.net.SocketTimeoutException
 
 // TODO: Rename parameter arguments, choose names that match
 // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -20,7 +27,7 @@ class Notifications : Fragment() {
     // TODO: Rename and change types of parameters
     private var param1: String? = null
     private var param2: String? = null
-
+    private var token = ""
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         arguments?.let {
@@ -35,6 +42,46 @@ class Notifications : Fragment() {
     ): View? {
         // Inflate the layout for this fragment
         return inflater.inflate(R.layout.fragment_notifications, container, false)
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
+        val db = TokenDB(requireContext())
+        token = db.getToken()
+        val activityLogRecycler = view.findViewById<RecyclerView>(R.id.activityLogRecycler)
+        val activityAdapter = ActivityLogAdapter(mutableListOf())
+        activityLogRecycler.adapter = activityAdapter
+        activityLogRecycler.layoutManager = LinearLayoutManager(requireContext())
+
+        val progress = Progress(requireContext())
+        val alerts = Alerts(requireContext())
+
+        progress.showProgress("Loading...")
+        CoroutineScope(Dispatchers.IO).launch {
+            val activityLog = try{ RetrofitInstance.retro.activityLog("Bearer $token") }
+            catch(e: SocketTimeoutException){
+                withContext(Dispatchers.Main){
+                    progress.dismiss()
+                    alerts.socketTimeOut()
+                }
+                return@launch
+            }catch(e: Exception){
+                withContext(Dispatchers.Main){
+                    progress.dismiss()
+                    alerts.error(e.toString())
+                }
+                return@launch
+            }
+
+            withContext(Dispatchers.Main){
+                progress.dismiss()
+                for(i in activityLog.indices){
+                    activityAdapter.add(activityLog[i])
+                }
+            }
+        }
+
     }
 
     companion object {

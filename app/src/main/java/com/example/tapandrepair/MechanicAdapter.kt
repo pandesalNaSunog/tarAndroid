@@ -83,6 +83,7 @@ class MechanicAdapter(private val list: MutableList<MechanicDetailsItem>, privat
                         }catch(e: HttpException){
                             withContext(Dispatchers.Main){
                                 progress.dismiss()
+                                Log.e("Error", e.toString())
                                 AlertDialog.Builder(context)
                                     .setTitle("Error")
                                     .setMessage("You are currently booked to a mechanic/repair shop")

@@ -9,6 +9,7 @@
         <entry key="..\:/TapAndRepair/app/src/main/res/drawable/ic_baseline_star_24.xml" value="0.196" />
         <entry key="..\:/TapAndRepair/app/src/main/res/drawable/ic_baseline_star_border_24.xml" value="0.196" />
         <entry key="..\:/TapAndRepair/app/src/main/res/layout/activity_customer_mechanic_meet_up.xml" value="0.25" />
+        <entry key="..\:/TapAndRepair/app/src/main/res/layout/activity_log_item.xml" value="0.2953125" />
         <entry key="..\:/TapAndRepair/app/src/main/res/layout/activity_mechanic_arrival.xml" value="0.30085470085470084" />
         <entry key="..\:/TapAndRepair/app/src/main/res/layout/activity_shop_location.xml" value="0.27008547008547007" />
         <entry key="..\:/TapAndRepair/app/src/main/res/layout/activity_shop_or_mechanic_home.xml" value="0.22" />
@@ -25,6 +26,7 @@
         <entry key="..\:/TapAndRepair/app/src/main/res/layout/find_shop_choose_option.xml" value="0.30085470085470084" />
         <entry key="..\:/TapAndRepair/app/src/main/res/layout/fragment_account.xml" value="0.288034188034188" />
         <entry key="..\:/TapAndRepair/app/src/main/res/layout/fragment_favorites.xml" value="0.30085470085470084" />
+        <entry key="..\:/TapAndRepair/app/src/main/res/layout/fragment_notifications.xml" value="0.2423076923076923" />
         <entry key="..\:/TapAndRepair/app/src/main/res/layout/loading_screen.xml" value="0.30085470085470084" />
         <entry key="..\:/TapAndRepair/app/src/main/res/layout/mechanic_booking.xml" value="0.30085470085470084" />
         <entry key="..\:/TapAndRepair/app/src/main/res/layout/mechanic_item.xml" value="0.5" />
@@ -41,6 +43,7 @@
         <entry key="..\:/TapAndRepair/app/src/main/res/layout/update_password_form.xml" value="0.288034188034188" />
         <entry key="..\:/TapAndRepair/app/src/main/res/layout/update_profile_layout.xml" value="0.2692307692307692" />
         <entry key="..\:/TapAndRepair/app/src/main/res/layout/view_mechanic_profile.xml" value="0.30085470085470084" />
+        <entry key="..\:/TapAndRepair/app/src/main/res/menu/nav_menu.xml" value="0.2953125" />
         <entry key="..\:/Users/Jem/AndroidStudioProjects/TapAndRepair/app/src/main/res/drawable/car_black.xml" value="0.261" />
         <entry key="..\:/Users/Jem/AndroidStudioProjects/TapAndRepair/app/src/main/res/drawable/ic_baseline_account_circle_24.xml" value="0.301" />
         <entry key="..\:/Users/Jem/AndroidStudioProjects/TapAndRepair/app/src/main/res/drawable/ic_baseline_account_circle_24_black.xml" value="0.276" />
