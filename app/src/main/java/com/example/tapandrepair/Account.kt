@@ -10,6 +10,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
 import android.widget.TextView
+import androidx.core.view.isVisible
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.bottomsheet.BottomSheetDialog
@@ -66,8 +67,11 @@ class Account : Fragment() {
         val contact = view.findViewById<TextView>(R.id.contact)
         val bookingRecycler = view.findViewById<RecyclerView>(R.id.bookingRecycler)
         val bookingAdapter = BookingAdapter(mutableListOf())
+        val noRecords = view.findViewById<TextView>(R.id.noRecords)
         bookingRecycler.adapter = bookingAdapter
         bookingRecycler.layoutManager = LinearLayoutManager(requireContext())
+
+        noRecords.isVisible = false
 
         val token = db.getToken()
         progress.showProgress("Loading...")
@@ -262,6 +266,7 @@ class Account : Fragment() {
 
                 name.text = "${profile.user.last_name}, ${profile.user.first_name}"
                 contact.text = profile.user.contact_number
+                noRecords.isVisible = profile.transaction_history.isEmpty()
 
                 for(i in profile.transaction_history.indices){
                     bookingAdapter.add(profile.transaction_history[i])

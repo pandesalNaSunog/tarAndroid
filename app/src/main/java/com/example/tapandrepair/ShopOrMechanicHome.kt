@@ -162,25 +162,6 @@ class ShopOrMechanicHome : FragmentActivity(), OnMapReadyCallback {
             finishAffinity()
         }
     }
-
-    @SuppressLint("MissingPermission")
-    override fun onRequestPermissionsResult(
-        requestCode: Int,
-        permissions: Array<out String>,
-        grantResults: IntArray
-    ) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        if(requestCode == locationServiceRequestCode && grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED){
-            val client = LocationServices.getFusedLocationProviderClient(this)
-
-            val task = client.lastLocation
-            task.addOnSuccessListener {
-                long = it.longitude
-                lat = it.latitude
-                getMechanicData(long, lat)
-            }
-        }
-    }
     private fun hasAcceptedBooking(){
         CoroutineScope(Dispatchers.IO).launch {
             val hasAcceptedBookingResponse = try{ RetrofitInstance.retro.hasAcceptedBooking("Bearer $token") }
@@ -206,7 +187,7 @@ class ShopOrMechanicHome : FragmentActivity(), OnMapReadyCallback {
         }
     }
     private fun getMechanicData(long: Double, lat: Double){
-        progress.showProgress("Loading...")
+        progress.showProgress("Getting Data...")
         val jsonObject = JSONObject()
         jsonObject.put("lat", lat.toString())
         jsonObject.put("long", long.toString())
@@ -255,9 +236,12 @@ class ShopOrMechanicHome : FragmentActivity(), OnMapReadyCallback {
                 val mechanicBooking = try {
                     RetrofitInstance.retro.getMechanicBooking("Bearer $token")
                 } catch (e: HttpException) {
+                    Log.e("http exception", e.toString())
                     getMechanicBookings()
+
                     return@launch
                 } catch (e: Exception) {
+                    Log.e("exception", e.toString())
                     getMechanicBookings()
                     return@launch
                 }
@@ -280,9 +264,8 @@ class ShopOrMechanicHome : FragmentActivity(), OnMapReadyCallback {
                     mapFragment.getMapAsync(this@ShopOrMechanicHome)
                     val deny = bookingALertView.findViewById<Button>(R.id.deny)
 
-                    customerLat = mechanicBooking.lat.toDouble()
-                    customerLong = mechanicBooking.long.toDouble()
 
+                    Log.e("render", "render")
                     deny.setOnClickListener {
                         progress.showProgress("Please Wait...")
                         val jsonObject = JSONObject()
@@ -369,6 +352,8 @@ class ShopOrMechanicHome : FragmentActivity(), OnMapReadyCallback {
                         "${mechanicBooking.customer.first_name} ${mechanicBooking.customer.last_name}"
                     service.text = mechanicBooking.service
                     vehicleType.text = mechanicBooking.vehicle_type
+                    customerLat = mechanicBooking.lat.toDouble()
+                    customerLong = mechanicBooking.long.toDouble()
                 }
                 delay(5000)
             }while(!hasBooking)
@@ -376,7 +361,6 @@ class ShopOrMechanicHome : FragmentActivity(), OnMapReadyCallback {
     }
 
 
-    @SuppressLint("MissingPermission")
     override fun onMapReady(googleMap: GoogleMap) {
         map = googleMap
         map.mapType = GoogleMap.MAP_TYPE_NORMAL

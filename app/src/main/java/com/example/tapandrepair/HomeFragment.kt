@@ -15,6 +15,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
 import android.widget.CheckBox
+import android.widget.TextView
 import androidx.appcompat.content.res.AppCompatResources.getDrawable
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
@@ -319,7 +320,8 @@ class HomeFragment : Fragment() {
                         val mechanicsAlertView = LayoutInflater.from(requireContext())
                             .inflate(R.layout.suggested_mechanics, null)
                         mechanicsAlert.setView(mechanicsAlertView)
-
+                        val suggested = mechanicsAlertView.findViewById<TextView>(R.id.suggested)
+                        suggested.text = "Suggested Mechanics"
                         val mechanicAdapter = MechanicAdapter(
                             mutableListOf(),
                             vehicle,
@@ -390,7 +392,9 @@ class HomeFragment : Fragment() {
                             mechanicsAlertView.findViewById<RecyclerView>(R.id.mechanicsRecycler)
                         mechanicRecycler.adapter = mechanicAdapter
                         mechanicRecycler.layoutManager = LinearLayoutManager(requireContext())
+                        val suggested = mechanicsAlertView.findViewById<TextView>(R.id.suggested)
 
+                        suggested.text = "Suggested Repair Shops"
                         mechanicsAlert.show()
                         for (i in mechanics.indices) {
                             mechanicAdapter.add(mechanics[i])

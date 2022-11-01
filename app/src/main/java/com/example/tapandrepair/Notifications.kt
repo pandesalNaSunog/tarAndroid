@@ -5,6 +5,8 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.TextView
+import androidx.core.view.isVisible
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import kotlinx.coroutines.CoroutineScope
@@ -53,10 +55,10 @@ class Notifications : Fragment() {
         val activityAdapter = ActivityLogAdapter(mutableListOf())
         activityLogRecycler.adapter = activityAdapter
         activityLogRecycler.layoutManager = LinearLayoutManager(requireContext())
-
+        val noRecords = view.findViewById<TextView>(R.id.noRecords)
         val progress = Progress(requireContext())
         val alerts = Alerts(requireContext())
-
+        noRecords.isVisible = false
         progress.showProgress("Loading...")
         CoroutineScope(Dispatchers.IO).launch {
             val activityLog = try{ RetrofitInstance.retro.activityLog("Bearer $token") }
@@ -76,6 +78,8 @@ class Notifications : Fragment() {
 
             withContext(Dispatchers.Main){
                 progress.dismiss()
+
+                noRecords.isVisible = activityLog.isEmpty()
                 for(i in activityLog.indices){
                     activityAdapter.add(activityLog[i])
                 }
