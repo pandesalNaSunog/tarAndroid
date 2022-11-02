@@ -63,6 +63,19 @@ class PasswordAndSecurity : AppCompatActivity() {
                 val alertView = LayoutInflater.from(this).inflate(R.layout.agree_to_terms, null)
                 val agree = alertView.findViewById<CheckBox>(R.id.agree)
                 val signup = alertView.findViewById<Button>(R.id.signup)
+                val dataPolicy = alertView.findViewById<Button>(R.id.dataPolicy)
+
+                dataPolicy.setOnClickListener {
+                    val dataPolicyAlert = AlertDialog.Builder(this)
+                    val dataPolicyAlertView = LayoutInflater.from(this).inflate(R.layout.data_privacy_policy, null)
+
+                    dataPolicyAlert.setView(dataPolicyAlertView)
+                    val showDataPolicy = dataPolicyAlert.show()
+                    val ok = dataPolicyAlertView.findViewById<Button>(R.id.ok)
+                    ok.setOnClickListener {
+                        showDataPolicy.dismiss()
+                    }
+                }
 
 
                 signup.setOnClickListener {

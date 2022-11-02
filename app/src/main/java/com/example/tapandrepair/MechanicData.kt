@@ -1,8 +1,8 @@
 package com.example.tapandrepair
 
 data class MechanicData(
-    val acceptance: Int,
-    val cancellation: Int,
+    val acceptance: Double,
+    val cancellation: Double,
     val mechanic: MechanicXX,
     val rating: Double
 )

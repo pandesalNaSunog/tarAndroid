@@ -52,7 +52,6 @@ class CustomerMechanicMeetUp : FragmentActivity(), OnMapReadyCallback {
         mapFragment.getMapAsync(this)
 
         val chat = findViewById<LinearLayout>(R.id.chat)
-        val cancel = findViewById<LinearLayout>(R.id.cancel)
         val report = findViewById<LinearLayout>(R.id.report)
         val progress = Progress(this)
         val alerts = Alerts(this)
@@ -64,45 +63,6 @@ class CustomerMechanicMeetUp : FragmentActivity(), OnMapReadyCallback {
         customerId = intent.getIntExtra("customer_id", 0)
         bookingId = intent.getIntExtra("booking_id",0)
         Log.e("customer_id", customerId.toString())
-
-
-        cancel.setOnClickListener{
-            val confirmCancelAlert = AlertDialog.Builder(this)
-                .setTitle("Cancel")
-                .setMessage("Cancel Booking?")
-                .setPositiveButton("YES"){_,_->
-                    progress.showProgress("Please Wait...")
-                    val cancelBookingJson = JSONObject()
-                    cancelBookingJson.put("booking_id", bookingId)
-                    val cancelBookingRequest = cancelBookingJson.toString().toRequestBody("application/json".toMediaTypeOrNull())
-                    CoroutineScope(Dispatchers.IO).launch {
-                        val cancelResponse = try{ RetrofitInstance.retro.cancelBooking("Bearer $token", cancelBookingRequest) }
-                        catch(e: SocketTimeoutException){
-                            withContext(Dispatchers.Main){
-                                progress.dismiss()
-                                alerts.socketTimeOut()
-                            }
-                            return@launch
-                        }catch(e: Exception){
-                            withContext(Dispatchers.Main){
-                                progress.dismiss()
-                                alerts.socketTimeOut()
-                            }
-                            return@launch
-                        }
-
-                        withContext(Dispatchers.Main){
-                            progress.dismiss()
-                            if(cancelResponse.status == "cancelled by the customer"){
-                                val intent = Intent(this@CustomerMechanicMeetUp, ShopOrMechanicHome::class.java)
-                                startActivity(intent)
-                                finishAffinity()
-                            }
-                        }
-                    }
-                }.setNegativeButton("NO", null)
-            val showConfirmCancelAlert = confirmCancelAlert.show()
-        }
 
         confirmArrival.setOnClickListener {
             arrivedAlert = AlertDialog.Builder(this@CustomerMechanicMeetUp)
@@ -444,6 +404,20 @@ class CustomerMechanicMeetUp : FragmentActivity(), OnMapReadyCallback {
                         Log.e("Travel Distance", mechanicLocationResponse.travel.distance.toString())
                     }
                     if(mechanicLocationResponse.booking_status == "fixing"){
+                        break
+                    }else if(mechanicLocationResponse.booking_status == "cancelled by the customer"){
+                        withContext(Dispatchers.Main){
+                            val cancelledAlert = AlertDialog.Builder(this@CustomerMechanicMeetUp)
+                                .setTitle("Cancelled")
+                                .setMessage("This booking has been cancelled by the customer.")
+                                .setCancelable(false)
+                                .setPositiveButton("OK"){_,_->
+                                    val intent = Intent(this@CustomerMechanicMeetUp, ShopOrMechanicHome::class.java)
+                                    startActivity(intent)
+                                    finishAffinity()
+                                }
+                                .show()
+                        }
                         break
                     }
                     delay(3000)

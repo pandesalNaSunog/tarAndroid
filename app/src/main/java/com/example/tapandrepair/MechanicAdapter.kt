@@ -28,6 +28,7 @@ class MechanicAdapter(private val list: MutableList<MechanicDetailsItem>, privat
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): Holder {
         return Holder(LayoutInflater.from(parent.context).inflate(R.layout.mechanic_item, parent, false))
     }
+    lateinit var showDeniedAlert: AlertDialog
     override fun onBindViewHolder(holder: Holder, position: Int) {
         var hasAccepted = false
         val curr = list[position]
@@ -179,6 +180,20 @@ class MechanicAdapter(private val list: MutableList<MechanicDetailsItem>, privat
                                                     startActivity(context, intent, null)
                                                 }
                                                 .show()
+                                        }else if(statusResponse.status == "denied"){
+                                            hasAccepted = true
+                                            val deniedAlert = AlertDialog.Builder(context)
+                                                .setTitle("Denied")
+                                                .setMessage("Your booking has been denied by the mechanic/shop")
+                                                .setCancelable(false)
+                                                .setPositiveButton("OK"){_,_->
+                                                    showBookingSuccessAlert.dismiss()
+                                                    showBookAlert.dismiss()
+                                                    showDeniedAlert.dismiss()
+                                                }
+                                            showDeniedAlert = deniedAlert.show()
+                                        }else{
+                                            Log.e("jkljadf", "jklajf")
                                         }
                                     }
                                     delay(5000)
