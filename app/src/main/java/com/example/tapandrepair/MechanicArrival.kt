@@ -45,6 +45,7 @@ class MechanicArrival : FragmentActivity(), OnMapReadyCallback{
     private lateinit var time: TextView
     private lateinit var distance: TextView
     private var rating = 1
+    private var bookingId = 0
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_mechanic_arrival)
@@ -52,16 +53,57 @@ class MechanicArrival : FragmentActivity(), OnMapReadyCallback{
         mapFragment.getMapAsync(this)
         shopMechanicId = intent.getIntExtra("shop_mechanic_id", 0)
         shopMechanicName = intent.getStringExtra("name").toString()
-
+        bookingId = intent.getIntExtra("booking_id", 0)
+        Log.e("booking id", bookingId.toString())
         val mechanicName = findViewById<TextView>(R.id.mechanicName)
         val chat = findViewById<Button>(R.id.chat)
         val progress = Progress(this)
         val alerts = Alerts(this)
         val db = TokenDB(this)
         val report = findViewById<LinearLayout>(R.id.report)
+        val cancel = findViewById<Button>(R.id.cancel)
         time = findViewById<TextView>(R.id.time)
         distance = findViewById<TextView>(R.id.distance)
         token = db.getToken()
+
+
+        cancel.setOnClickListener {
+            val confirmCancelAlert = AlertDialog.Builder(this)
+                .setTitle("Cancel")
+                .setMessage("Cancel Booking?")
+                .setPositiveButton("YES"){_,_->
+                    progress.showProgress("Please Wait...")
+                    val cancelBookingJson = JSONObject()
+                    cancelBookingJson.put("booking_id", bookingId)
+                    val cancelBookingRequest = cancelBookingJson.toString().toRequestBody("application/json".toMediaTypeOrNull())
+                    CoroutineScope(Dispatchers.IO).launch {
+                        val cancelResponse = try{ RetrofitInstance.retro.cancelBooking("Bearer $token", cancelBookingRequest) }
+                        catch(e: SocketTimeoutException){
+                            withContext(Dispatchers.Main){
+                                progress.dismiss()
+                                alerts.socketTimeOut()
+                            }
+                            return@launch
+                        }catch(e: Exception){
+                            withContext(Dispatchers.Main){
+                                progress.dismiss()
+                                alerts.socketTimeOut()
+                            }
+                            return@launch
+                        }
+
+                        withContext(Dispatchers.Main){
+                            progress.dismiss()
+                            if(cancelResponse.status == "cancelled by the customer"){
+                                val intent = Intent(this@MechanicArrival, Navigation::class.java)
+                                startActivity(intent)
+                                finishAffinity()
+                            }
+                        }
+                    }
+                }.setNegativeButton("NO", null)
+            val showConfirmCancelAlert = confirmCancelAlert.show()
+        }
 
 
         report.setOnClickListener{
@@ -216,7 +258,11 @@ class MechanicArrival : FragmentActivity(), OnMapReadyCallback{
         if (ActivityCompat.checkSelfPermission(
                 this,
                 Manifest.permission.ACCESS_FINE_LOCATION
+            ) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(
+                this,
+                Manifest.permission.ACCESS_COARSE_LOCATION
             ) != PackageManager.PERMISSION_GRANTED
+
         ) {
             ActivityCompat.requestPermissions(
                 this,
@@ -259,6 +305,7 @@ class MechanicArrival : FragmentActivity(), OnMapReadyCallback{
             jsonObject.put("lat", myLat)
             jsonObject.put("long", myLong)
             jsonObject.put("mechanic_id", shopMechanicId)
+            jsonObject.put("booking_id", bookingId)
             request = jsonObject.toString().toRequestBody("application/json".toMediaTypeOrNull())
 
             CoroutineScope(Dispatchers.IO).launch {

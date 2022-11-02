@@ -85,7 +85,7 @@ class Login : AppCompatActivity() {
 
                     withContext(Dispatchers.Main){
                         db.add(loginResponse)
-
+                        progress.dismiss()
                         val intent = if(loginResponse.type == "user"){
                             Intent(this@Login, Navigation::class.java)
                         }else{

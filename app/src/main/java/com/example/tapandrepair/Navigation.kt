@@ -128,6 +128,7 @@ class Navigation : AppCompatActivity() {
                                             val intent = Intent(this@Navigation, MechanicArrival::class.java)
                                             intent.putExtra("shop_mechanic_id", statusResponse.shop_mechanic_id)
                                             intent.putExtra("name", statusResponse.shop_mechanic_name)
+                                            intent.putExtra("booking_id", statusResponse.booking_id)
                                             ContextCompat.startActivity(this@Navigation, intent, null)
                                         }
                                         .show()

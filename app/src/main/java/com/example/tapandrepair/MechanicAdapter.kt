@@ -175,6 +175,7 @@ class MechanicAdapter(private val list: MutableList<MechanicDetailsItem>, privat
                                                     val intent = Intent(context, MechanicArrival::class.java)
                                                     intent.putExtra("shop_mechanic_id", statusResponse.shop_mechanic_id)
                                                     intent.putExtra("name", statusResponse.shop_mechanic_name)
+                                                    intent.putExtra("booking_id", bookingId)
                                                     startActivity(context, intent, null)
                                                 }
                                                 .show()

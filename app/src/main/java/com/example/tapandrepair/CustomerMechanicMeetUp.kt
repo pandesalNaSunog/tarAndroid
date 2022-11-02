@@ -65,6 +65,45 @@ class CustomerMechanicMeetUp : FragmentActivity(), OnMapReadyCallback {
         bookingId = intent.getIntExtra("booking_id",0)
         Log.e("customer_id", customerId.toString())
 
+
+        cancel.setOnClickListener{
+            val confirmCancelAlert = AlertDialog.Builder(this)
+                .setTitle("Cancel")
+                .setMessage("Cancel Booking?")
+                .setPositiveButton("YES"){_,_->
+                    progress.showProgress("Please Wait...")
+                    val cancelBookingJson = JSONObject()
+                    cancelBookingJson.put("booking_id", bookingId)
+                    val cancelBookingRequest = cancelBookingJson.toString().toRequestBody("application/json".toMediaTypeOrNull())
+                    CoroutineScope(Dispatchers.IO).launch {
+                        val cancelResponse = try{ RetrofitInstance.retro.cancelBooking("Bearer $token", cancelBookingRequest) }
+                        catch(e: SocketTimeoutException){
+                            withContext(Dispatchers.Main){
+                                progress.dismiss()
+                                alerts.socketTimeOut()
+                            }
+                            return@launch
+                        }catch(e: Exception){
+                            withContext(Dispatchers.Main){
+                                progress.dismiss()
+                                alerts.socketTimeOut()
+                            }
+                            return@launch
+                        }
+
+                        withContext(Dispatchers.Main){
+                            progress.dismiss()
+                            if(cancelResponse.status == "cancelled by the customer"){
+                                val intent = Intent(this@CustomerMechanicMeetUp, ShopOrMechanicHome::class.java)
+                                startActivity(intent)
+                                finishAffinity()
+                            }
+                        }
+                    }
+                }.setNegativeButton("NO", null)
+            val showConfirmCancelAlert = confirmCancelAlert.show()
+        }
+
         confirmArrival.setOnClickListener {
             arrivedAlert = AlertDialog.Builder(this@CustomerMechanicMeetUp)
                 .setTitle("Arrived")
@@ -377,6 +416,7 @@ class CustomerMechanicMeetUp : FragmentActivity(), OnMapReadyCallback {
             jsonObject.put("lat", myLat)
             jsonObject.put("long", myLong)
             jsonObject.put("mechanic_id", customerId)
+            jsonObject.put("booking_id", bookingId)
             val request = jsonObject.toString().toRequestBody("application/json".toMediaTypeOrNull())
 
             CoroutineScope(Dispatchers.IO).launch {
