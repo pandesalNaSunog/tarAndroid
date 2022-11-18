@@ -9,6 +9,7 @@ import androidx.cardview.widget.CardView
 import androidx.core.content.ContextCompat.startActivity
 import androidx.recyclerview.widget.RecyclerView
 
+
 class BookingAdapter(private val list: MutableList<CustomerTransactionHistoryItem>): RecyclerView.Adapter<BookingAdapter.Holder>() {
     class Holder(itemView: View): RecyclerView.ViewHolder(itemView)
 

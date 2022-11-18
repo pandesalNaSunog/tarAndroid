@@ -18,6 +18,7 @@ import androidx.recyclerview.widget.RecyclerView
 import kotlinx.coroutines.*
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.RequestBody.Companion.toRequestBody
+import org.json.JSONArray
 import org.json.JSONObject
 import retrofit2.HttpException
 import java.net.SocketTimeoutException
@@ -33,6 +34,7 @@ class MechanicAdapter(private val list: MutableList<MechanicDetailsItem>, privat
         var hasAccepted = false
         val curr = list[position]
         holder.itemView.apply {
+
             val name = findViewById<TextView>(R.id.name)
             val mechanicCard = findViewById<CardView>(R.id.mechanic)
             val rating = findViewById<TextView>(R.id.rating)
